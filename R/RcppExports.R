@@ -9,8 +9,8 @@ SVDCoeff <- function(xreg, yreg) {
     .Call('rlsm_SVDCoeff', PACKAGE = 'rlsm', xreg, yreg)
 }
 
-LSM <- function(path, Reward_, Scrap_, control_, basis, intercept, basis_type) {
-    .Call('rlsm_LSM', PACKAGE = 'rlsm', path, Reward_, Scrap_, control_, basis, intercept, basis_type)
+LSM <- function(path_, Reward_, Scrap_, control_, basis, intercept, basis_type) {
+    .Call('rlsm_LSM', PACKAGE = 'rlsm', path_, Reward_, Scrap_, control_, basis, intercept, basis_type)
 }
 
 BM <- function(start, mu, vol, n_dec, n_path, antithetic) {

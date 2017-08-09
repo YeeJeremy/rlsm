@@ -33,18 +33,18 @@ arma::mat PBasis(const arma::mat& data,
 
 // Regression coefficients from singular value decomposition
 //[[Rcpp::export]]
-arma::colvec SVDCoeff(const arma::mat& xreg,
-                      const arma::vec& yreg) {
+arma::vec SVDCoeff(const arma::mat& xreg,
+                   const arma::vec& yreg) {
   arma::mat u;
   arma::vec s;
   arma::mat v;
   arma::svd_econ(u, s, v, xreg, "both", "dc");
-  arma::colvec d = (u.t()) * yreg;
-  arma::colvec temp(xreg.n_cols, arma::fill::zeros);
+  arma::vec d = (u.t()) * yreg;
+  arma::vec temp(xreg.n_cols, arma::fill::zeros);
   int r = rank(xreg);
   temp(arma::span(0, r - 1)) =
       d(arma::span(0, r - 1)) / s(arma::span(0, r - 1));
-  arma::colvec svd_coeff = v * temp;
+  arma::vec svd_coeff = v * temp;
   return svd_coeff;
 }
 
@@ -67,7 +67,7 @@ arma::mat Optimal(const arma::mat& expected_value,
   for (pp = 0; pp < n_pos; pp++) {
     compare = reward_values.slice(pp);
     for (aa = 0; aa < n_action; aa++) {
-      nn = control(pp, aa);  // Evolution of position
+      nn = control(pp, aa) - 1;  // Next position + R index starts at 1
       compare.col(aa) += fitted_expected.col(nn);
     }
     best.col(pp) = arma::max(compare, 1);  // Choose best action
@@ -105,7 +105,7 @@ arma::mat Optimal(const arma::mat& expected_value,
 
 // Least squares Monte Carlo
 //[[Rcpp::export]]
-Rcpp::List LSM(const arma::cube& path,
+Rcpp::List LSM(Rcpp::NumericVector path_,
                const Rcpp::Function& Reward_,
                const Rcpp::Function& Scrap_,
                Rcpp::NumericVector control_,
@@ -114,9 +114,11 @@ Rcpp::List LSM(const arma::cube& path,
                const std::string& basis_type) {
   // Extract parameters
   std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  n_dec = path.n_rows;
-  n_path = path.n_cols;
-  n_dim = path.n_slices;
+  const arma::ivec p_dims = path_.attr("dim");
+  n_dec = p_dims(0);
+  n_path = p_dims(1);
+  n_dim = (p_dims.n_elem == 2) ? 1 : p_dims(2);
+  arma::cube path(path_.begin(), n_dec, n_path, n_dim, false);
   const arma::ivec c_dims = control_.attr("dim");
   n_pos = c_dims(0);
   n_action = c_dims(1);
@@ -139,8 +141,10 @@ Rcpp::List LSM(const arma::cube& path,
   // Perform the Bellman recursion starting at last time epoch
   Rcpp::Rcout << "At dec: " << n_dec - 1 << "...";
   arma::mat path_values(n_path, n_pos);
+  arma::mat temp_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
-  states = path(arma::span(n_dec - 1), arma::span::all, arma::span::all);
+  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  states = temp_states.t();
   path_values = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   arma::cube expected_value(n_terms, n_pos, n_dec - 1);  // Regression fit
@@ -148,8 +152,9 @@ Rcpp::List LSM(const arma::cube& path,
   arma::cube reward_values(n_path, n_action, n_pos);
   // Perform Backward induction
   for (int tt = (n_dec - 2); tt >= 0; tt--) {
-    Rcpp::Rcout << n_dec - 1 << "...";
-    states = path(arma::span(tt), arma::span::all, arma::span::all);
+    Rcpp::Rcout << tt << "...";
+    temp_states = path.tube(arma::span(tt), arma::span::all);
+    states = temp_states.t();
     // Compute the fitted continuation value
     if (basis_type == "power") {
       reg_basis = PBasis(states, basis, intercept, n_terms);
@@ -159,13 +164,13 @@ Rcpp::List LSM(const arma::cube& path,
           SVDCoeff(reg_basis, path_values.col(pp));
     }
     reward_values = Rcpp::as<arma::cube>(
-        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
+        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt));
     if (full_control) {
       path_values = Optimal(expected_value.slice(tt), reg_basis, reward_values,
                             control, n_path, n_pos, n_action, n_dim);
     } else {
-     path_values = Optimal(expected_value.slice(tt), reg_basis, reward_values,
-                           control2, n_path, n_pos, n_action, n_dim);     
+      path_values = Optimal(expected_value.slice(tt), reg_basis, reward_values,
+                            control2, n_path, n_pos, n_action, n_dim);     
     }
   }
   Rcpp::Rcout << "end\n";
