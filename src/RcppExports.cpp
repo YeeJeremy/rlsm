@@ -21,7 +21,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // SVDCoeff
-arma::colvec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
+arma::vec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
 RcppExport SEXP rlsm_SVDCoeff(SEXP xregSEXP, SEXP yregSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
