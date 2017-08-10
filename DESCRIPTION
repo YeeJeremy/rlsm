@@ -2,10 +2,10 @@ Package: rlsm
 Type: Package
 Title: Least Squares Monte-Carlo
 Version: 1.0
-Date: 2016-06-01
-Author: Juri Hinz and Jeremy Yee
+Date: 2016-07-10
+Author: Jeremy Yee
 Maintainer: Jeremy Yee <jeremyyee@outlook.com.au>
-Description: R implementation of the least squares Monte Carlo and duality methods.
+Description: Least squares Monte Carlo and duality methods for Markov decision processes.
 URL: https://github.com/YeeJeremy/rlsm
 License: GPL
 Imports: Rcpp (>= 0.11.6)

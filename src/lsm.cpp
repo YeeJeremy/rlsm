@@ -49,18 +49,20 @@ arma::vec SVDCoeff(const arma::mat& xreg,
 }
 
 // Best action given regression basis (position control deterministic)
-arma::mat Optimal(const arma::mat& path_values,
-                  const arma::mat& expected_value,
-                  const arma::mat& reg_basis,
-                  const arma::cube& reward_values,
-                  const arma::imat& control,
-                  const std::size_t& n_path,
-                  const std::size_t& n_pos,
-                  const std::size_t& n_action,
-                  const std::size_t& n_dim) {
+void Optimal(arma::cube& path_values,
+             arma::ucube& path_policy,
+             const arma::cube& expected_value,
+             const arma::mat& reg_basis,
+             const arma::cube& reward_values,
+             const arma::imat& control,
+             const int& tt,
+             const std::size_t& n_path,
+             const std::size_t& n_pos,
+             const std::size_t& n_action,
+             const std::size_t& n_dim) {
   // Get fitted values
   arma::mat fitted_expected(n_path, n_pos);
-  fitted_expected = reg_basis * expected_value;  // row = state, col = position
+  fitted_expected = reg_basis * expected_value.slice(tt);  // fitted values
   // Compute the fitted values based on position and action
   arma::mat best(n_path, n_pos);  // the best values
   arma::mat compare(n_path, n_action);
@@ -74,26 +76,28 @@ arma::mat Optimal(const arma::mat& path_values,
     }
     for (ww = 0; ww < n_path; ww++) {
       compare.row(ww).max(best_action);  // Best action according to regression
-      best(ww, pp) = reward_values(ww, best_action, pp) +
-          path_values(ww, control(pp, best_action) - 1);
+      path_policy(ww, pp, tt) = best_action + 1;
+      path_values(ww, pp, tt) = reward_values(ww, best_action, pp) +
+          path_values(ww, control(pp, best_action) - 1, tt + 1);
     }
   }
-  return best;
 }
 
 // Best action given regression basis (position control not deterministic)
-arma::mat Optimal(const arma::mat& path_values,
-                  const arma::mat& expected_value,
-                  const arma::mat& reg_basis,
-                  const arma::cube& reward_values,
-                  const arma::cube& control,
-                  const std::size_t& n_path,
-                  const std::size_t& n_pos,
-                  const std::size_t& n_action,
-                  const std::size_t& n_dim) {
+void Optimal(arma::cube& path_values,
+             arma::ucube& path_policy,
+             const arma::cube& expected_value,
+             const arma::mat& reg_basis,
+             const arma::cube& reward_values,
+             const arma::cube& control,
+             const int& tt,
+             const std::size_t& n_path,
+             const std::size_t& n_pos,
+             const std::size_t& n_action,
+             const std::size_t& n_dim) {
   // Get fitted values
   arma::mat fitted_expected(n_path, n_pos);
-  fitted_expected = reg_basis * expected_value;  // row = state, col = position
+  fitted_expected = reg_basis * expected_value.slice(tt);  // fitted values
   // Compute the fitted values based on position and action
   arma::mat best(n_path, n_pos);  // The best values
   arma::mat compare(n_path, n_action);
@@ -108,12 +112,12 @@ arma::mat Optimal(const arma::mat& path_values,
     }
     for (ww = 0; ww < n_path; ww++) {
       compare.row(ww).max(best_action);  // Best action according to regression
+      path_policy(ww, pp, tt) = best_action + 1;
       trans_prob = control.tube(pp, best_action);
-      best(ww, pp) = reward_values(ww, best_action, pp);
-          + path_values.row(ww) % trans_prob;
+      path_values(ww, pp, tt) = reward_values(ww, best_action, pp)
+          + arma::accu(path_values.slice(tt + 1).row(ww) * trans_prob);
     }
   }
-  return best;
 }
 
 // Least squares Monte Carlo
@@ -154,6 +158,7 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
   // Perform the Bellman recursion starting at last time epoch
   Rcpp::Rcout << "At dec: " << n_dec - 1 << "...";
   arma::cube path_values(n_path, n_pos, n_dec);
+  arma::ucube path_policy(n_path, n_pos, n_dec - 1);
   arma::mat temp_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
@@ -179,19 +184,16 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
     reward_values = Rcpp::as<arma::cube>(
         Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt));
     if (full_control) {
-      path_values.slice(tt) =
-          Optimal(path_values.slice(tt + 1), expected_value.slice(tt),
-                  reg_basis, reward_values,
-                  control, n_path, n_pos, n_action, n_dim);
+      Optimal(path_values, path_policy, expected_value, reg_basis,
+              reward_values, control, tt, n_path, n_pos, n_action, n_dim);
     } else {
-      path_values.slice(tt) =
-          Optimal(path_values.slice(tt + 1), expected_value.slice(tt),
-                  reg_basis, reward_values,
-                  control2, n_path, n_pos, n_action, n_dim);
+      Optimal(path_values, path_policy, expected_value, reg_basis,
+              reward_values, control2, tt, n_path, n_pos, n_action, n_dim);
     }
   }
   Rcpp::Rcout << "end\n";
   return Rcpp::List::create(Rcpp::Named("value") = path_values,
+                            Rcpp::Named("policy") = path_policy,
                             Rcpp::Named("expected") = expected_value);
 }
 
