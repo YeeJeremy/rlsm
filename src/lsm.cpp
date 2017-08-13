@@ -156,7 +156,7 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
           SVDCoeff(reg_basis, path_values.slice(tt + 1).col(pp));
     }
     reward_values = Rcpp::as<arma::cube>(
-        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt));
+        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));  // Indexing of this??
     if (full_control) {
       Optimal(path_values, path_policy, expected_value, reg_basis,
               reward_values, control, tt, n_path, n_pos, n_action, n_dim);

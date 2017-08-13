@@ -23,4 +23,13 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
                const bool& intercept,
                const std::string& basis_type);
 
+// Extracting the prescribed policy
+arma::ucube PathPolicy(Rcpp::NumericVector path_,
+                       const arma::cube& expected_value,
+                       const Rcpp::Function& Reward_,
+                       Rcpp::NumericVector control_,
+                       const arma::umat& basis,
+                       const bool& intercept,
+                       const std::string& basis_type); 
+
 #endif  // INST_INCLUDE_BASIS_H_
