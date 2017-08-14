@@ -43,11 +43,11 @@ arma::ucube PathPolicy(Rcpp::NumericVector path_,
   arma::mat reg_basis(n_path, n_terms);
   // Extract the prescribed policy
   arma::ucube policy(n_dec - 1, n_pos, n_path);
-  std::size_t tt, pp, aa;
+  std::size_t tt, pp, aa, nn;
   arma::mat fitted_expected(n_path, n_pos);
   arma::mat compare(n_path, n_action);
   arma::cube reward_values(n_path, n_action, n_pos);
-  arma::mat temp_states(n_dim, n_path);  // Do I really need this?
+  arma::mat temp_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   if (full_control) {
     for (tt = 0; tt < n_dec - 1; tt++) {
@@ -82,7 +82,7 @@ arma::ucube PathPolicy(Rcpp::NumericVector path_,
       for (pp = 0; pp < n_pos; pp++) {
         compare = reward_values.slice(pp);
         for (aa = 0; aa < n_action; aa++) {
-          trans_prob = control.tube(pp, aa);
+          trans_prob = control2.tube(pp, aa);
           compare.col(aa) += fitted_expected * trans_prob;
         }
         policy.tube(tt, pp) = arma::index_max(compare, 1);  // R indexing

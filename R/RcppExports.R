@@ -13,6 +13,10 @@ LSM <- function(path_, Reward_, Scrap_, control_, basis, intercept, basis_type) 
     .Call('rlsm_LSM', PACKAGE = 'rlsm', path_, Reward_, Scrap_, control_, basis, intercept, basis_type)
 }
 
+PathPolicy <- function(path_, expected_value, Reward_, control_, basis, intercept, basis_type) {
+    .Call('rlsm_PathPolicy', PACKAGE = 'rlsm', path_, expected_value, Reward_, control_, basis, intercept, basis_type)
+}
+
 BM <- function(start, mu, vol, n_dec, n_path, antithetic) {
     .Call('rlsm_BM', PACKAGE = 'rlsm', start, mu, vol, n_dec, n_path, antithetic)
 }
@@ -31,5 +35,13 @@ CBM <- function(start, mu, vol, corr, n_dec, n_path, antithetic) {
 
 CGBM <- function(start, mu, vol, corr, n_dec, n_path, antithetic) {
     .Call('rlsm_CGBM', PACKAGE = 'rlsm', start, mu, vol, corr, n_dec, n_path, antithetic)
+}
+
+TestPolicy <- function(start_position, path_, control_, Reward_, Scrap_, path_action) {
+    .Call('rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path_, control_, Reward_, Scrap_, path_action)
+}
+
+TestPolicy2 <- function(start_position, path_, control_, Reward_, Scrap_, path_action) {
+    .Call('rlsm_TestPolicy2', PACKAGE = 'rlsm', start_position, path_, control_, Reward_, Scrap_, path_action)
 }
 

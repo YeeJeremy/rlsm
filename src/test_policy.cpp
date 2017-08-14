@@ -55,15 +55,17 @@ arma::vec TestPolicy(const int& start_position,
   arma::vec value(n_path, arma::fill::zeros);
   arma::uvec pos(n_path);
   pos.fill(start_position - 1);  // Initialise with starting position
-  arma::mat state(n_path, n_dim);
+  arma::mat temp_states(n_dim, n_path);
+  arma::mat states(n_path, n_dim);
   arma::cube reward(n_path, n_action, n_pos);
-  arma::cube scrap(n_path, n_pos);
+  arma::mat scrap(n_path, n_pos);
   arma::uword policy;
   if (full_control) {
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      state = path(arma::span(tt), arma::span::all, arma::span::all);
+      temp_states = path.tube(arma::span(tt), arma::span::all);
+      states = temp_states.t();
       reward = Rcpp::as<arma::cube>(Reward_(
-          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state)), tt + 1));
+          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
         policy = path_action(tt, pos(ww), ww) - 1;
         value(ww) += reward(ww, policy, pos(ww));
@@ -73,11 +75,12 @@ arma::vec TestPolicy(const int& start_position,
   } else {
     arma::vec prob_weight(n_pos);
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      state = path(arma::span(tt), arma::span::all, arma::span::all);
+      temp_states = path.tube(arma::span(tt), arma::span::all);
+      states = temp_states.t();
       reward = Rcpp::as<arma::cube>(Reward_(
-          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state)), tt + 1));
+          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(t, pos(ww), ww) - 1;
+        policy = path_action(tt, pos(ww), ww) - 1;
         value(ww) += reward(ww, policy, pos(ww));
         prob_weight = control2.tube(pos(ww), policy);
         pos(ww) = NextPosition(prob_weight);
@@ -85,11 +88,12 @@ arma::vec TestPolicy(const int& start_position,
     }    
   }
   // Get the scrap value
-  state = path(arma::span(n_dec - 1), arma::span::all, arma::span::all);
+  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  states = temp_states.t();
   scrap = Rcpp::as<arma::mat>(Scrap_(
-      Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state))));
+      Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   for (std::size_t ww = 0; ww < n_path; ww++) {
-    value(ww) += scrap(ww, policy, pos(ww));
+    value(ww) += scrap(ww, pos(ww));
   }
   return value;
 }
@@ -132,45 +136,49 @@ Rcpp::List TestPolicy2(const int& start_position,
   arma::uvec pos(n_path);
   pos.fill(start_position - 1);  // Initialise with starting position
   position.col(0) = pos;
-  arma::mat state(n_path, n_dim);
+  arma::mat temp_states(n_dim, n_path);
+  arma::mat states(n_path, n_dim);
   arma::cube reward(n_path, n_action, n_pos);
-  arma::cube scrap(n_path, n_pos);
+  arma::mat scrap(n_path, n_pos);
   arma::uword policy;
   if (full_control) {
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      state = path(arma::span(tt), arma::span::all, arma::span::all);
+      temp_states = path.tube(arma::span(tt), arma::span::all);
+      states = temp_states.t();
       reward = Rcpp::as<arma::cube>(Reward_(
-          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state)), tt + 1));
+          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
         policy = path_action(tt, pos(ww), ww) - 1;
         action(ww, tt) = policy;
         value(ww) += reward(ww, policy, pos(ww));
         pos(ww) = control(pos(ww), policy) - 1;
       }
-      positon.col(tt + 1) = pos;
+      position.col(tt + 1) = pos;
     }
   } else {
     arma::vec prob_weight(n_pos);
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      state = path(arma::span(tt), arma::span::all, arma::span::all);
+      temp_states = path.tube(arma::span(tt), arma::span::all);
+      states = temp_states.t();
       reward = Rcpp::as<arma::cube>(Reward_(
-          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state)), tt + 1));
+          Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(t, pos(ww), ww) - 1;
+        policy = path_action(tt, pos(ww), ww) - 1;
         action(ww, tt) = policy;
         value(ww) += reward(ww, policy, pos(ww));
         prob_weight = control2.tube(pos(ww), policy);
         pos(ww) = NextPosition(prob_weight);
       }
-      positon.col(tt + 1) = pos;
+      position.col(tt + 1) = pos;
     }
   }
   // Get the scrap value
-  state = path(arma::span(n_dec - 1), arma::span::all, arma::span::all);
+  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  states = temp_states.t();
   scrap = Rcpp::as<arma::mat>(Scrap_(
-      Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(state))));
+      Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   for (std::size_t ww = 0; ww < n_path; ww++) {
-    value(ww) += scrap(ww, policy, pos(ww));
+    value(ww) += scrap(ww, pos(ww));
   }
   return Rcpp::List::create(Rcpp::Named("value") = value,
                             Rcpp::Named("position") = position + 1,
