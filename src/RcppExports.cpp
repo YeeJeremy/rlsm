@@ -33,41 +33,41 @@ BEGIN_RCPP
 END_RCPP
 }
 // LSM
-Rcpp::List LSM(Rcpp::NumericVector path_, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
-RcppExport SEXP rlsm_LSM(SEXP path_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
+Rcpp::List LSM(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
+RcppExport SEXP rlsm_LSM(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type path_(path_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Function& >::type Reward_(Reward_SEXP);
     Rcpp::traits::input_parameter< const Rcpp::Function& >::type Scrap_(Scrap_SEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
     Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(LSM(path_, Reward_, Scrap_, control_, basis, intercept, basis_type));
+    rcpp_result_gen = Rcpp::wrap(LSM(path, Reward_, Scrap_, control_, basis, intercept, basis_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // PathPolicy
-arma::ucube PathPolicy(Rcpp::NumericVector path_, const arma::cube& expected_value, const Rcpp::Function& Reward_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
-RcppExport SEXP rlsm_PathPolicy(SEXP path_SEXP, SEXP expected_valueSEXP, SEXP Reward_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
+arma::ucube PathPolicy(const arma::cube& path, const arma::cube& expected_value, const Rcpp::Function& Reward_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
+RcppExport SEXP rlsm_PathPolicy(SEXP pathSEXP, SEXP expected_valueSEXP, SEXP Reward_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type path_(path_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< const arma::cube& >::type expected_value(expected_valueSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Function& >::type Reward_(Reward_SEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
     Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(PathPolicy(path_, expected_value, Reward_, control_, basis, intercept, basis_type));
+    rcpp_result_gen = Rcpp::wrap(PathPolicy(path, expected_value, Reward_, control_, basis, intercept, basis_type));
     return rcpp_result_gen;
 END_RCPP
 }
 // BM
-arma::mat BM(const double& start, const double& mu, const double& vol, const int& n_dec, const int& n_path, const bool& antithetic);
+arma::cube BM(const double& start, const double& mu, const double& vol, const int& n_dec, const int& n_path, const bool& antithetic);
 RcppExport SEXP rlsm_BM(SEXP startSEXP, SEXP muSEXP, SEXP volSEXP, SEXP n_decSEXP, SEXP n_pathSEXP, SEXP antitheticSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -83,7 +83,7 @@ BEGIN_RCPP
 END_RCPP
 }
 // GBM
-arma::mat GBM(const double& start, const double& mu, const double& vol, const int& n_dec, const int& n_path, const bool& antithetic);
+arma::cube GBM(const double& start, const double& mu, const double& vol, const int& n_dec, const int& n_path, const bool& antithetic);
 RcppExport SEXP rlsm_GBM(SEXP startSEXP, SEXP muSEXP, SEXP volSEXP, SEXP n_decSEXP, SEXP n_pathSEXP, SEXP antitheticSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -145,34 +145,34 @@ BEGIN_RCPP
 END_RCPP
 }
 // TestPolicy
-arma::vec TestPolicy(const int& start_position, Rcpp::NumericVector path_, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
-RcppExport SEXP rlsm_TestPolicy(SEXP start_positionSEXP, SEXP path_SEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
+arma::vec TestPolicy(const int& start_position, const arma::cube& path, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
+RcppExport SEXP rlsm_TestPolicy(SEXP start_positionSEXP, SEXP pathSEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type start_position(start_positionSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type path_(path_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type Reward_(Reward_SEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type Scrap_(Scrap_SEXP);
     Rcpp::traits::input_parameter< const arma::ucube& >::type path_action(path_actionSEXP);
-    rcpp_result_gen = Rcpp::wrap(TestPolicy(start_position, path_, control_, Reward_, Scrap_, path_action));
+    rcpp_result_gen = Rcpp::wrap(TestPolicy(start_position, path, control_, Reward_, Scrap_, path_action));
     return rcpp_result_gen;
 END_RCPP
 }
 // TestPolicy2
-Rcpp::List TestPolicy2(const int& start_position, Rcpp::NumericVector path_, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
-RcppExport SEXP rlsm_TestPolicy2(SEXP start_positionSEXP, SEXP path_SEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
+Rcpp::List TestPolicy2(const int& start_position, const arma::cube& path, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
+RcppExport SEXP rlsm_TestPolicy2(SEXP start_positionSEXP, SEXP pathSEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const int& >::type start_position(start_positionSEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type path_(path_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type Reward_(Reward_SEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type Scrap_(Scrap_SEXP);
     Rcpp::traits::input_parameter< const arma::ucube& >::type path_action(path_actionSEXP);
-    rcpp_result_gen = Rcpp::wrap(TestPolicy2(start_position, path_, control_, Reward_, Scrap_, path_action));
+    rcpp_result_gen = Rcpp::wrap(TestPolicy2(start_position, path, control_, Reward_, Scrap_, path_action));
     return rcpp_result_gen;
 END_RCPP
 }

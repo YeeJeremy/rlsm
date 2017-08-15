@@ -7,7 +7,7 @@
 
 // Extracting the prescribed policy on a set of sample paths
 //[[Rcpp::export]]
-arma::ucube PathPolicy(Rcpp::NumericVector path_,
+arma::ucube PathPolicy(const arma::cube& path,
                        const arma::cube& expected_value,
                        const Rcpp::Function& Reward_,
                        Rcpp::NumericVector control_,
@@ -16,11 +16,9 @@ arma::ucube PathPolicy(Rcpp::NumericVector path_,
                        const std::string& basis_type) {
   // Extract parameters
   std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  const arma::ivec p_dims = path_.attr("dim");
-  n_dec = p_dims(0);
-  n_path = p_dims(1);
-  n_dim = (p_dims.n_elem == 2) ? 1 : p_dims(2);
-  arma::cube path(path_.begin(), n_dec, n_path, n_dim, false);
+  n_dec = path.n_rows;
+  n_path = path.n_cols;
+  n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
   n_pos = c_dims(0);
   n_action = c_dims(1);
@@ -47,12 +45,16 @@ arma::ucube PathPolicy(Rcpp::NumericVector path_,
   arma::mat fitted_expected(n_path, n_pos);
   arma::mat compare(n_path, n_action);
   arma::cube reward_values(n_path, n_action, n_pos);
-  arma::mat temp_states(n_dim, n_path);
+  arma::mat t_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   if (full_control) {
     for (tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }
       if (basis_type == "power") {
         reg_basis = PBasis(states, basis, intercept, n_terms);
       }
@@ -71,8 +73,12 @@ arma::ucube PathPolicy(Rcpp::NumericVector path_,
   } else {
     arma::vec trans_prob(n_pos);  // The transition probabilities
     for (tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }
       if (basis_type == "power") {
         reg_basis = PBasis(states, basis, intercept, n_terms);
       }

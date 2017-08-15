@@ -96,7 +96,7 @@ void Optimal(arma::cube& path_values,
 
 // Least squares Monte Carlo
 //[[Rcpp::export]]
-Rcpp::List LSM(Rcpp::NumericVector path_,
+Rcpp::List LSM(const arma::cube& path,
                const Rcpp::Function& Reward_,
                const Rcpp::Function& Scrap_,
                Rcpp::NumericVector control_,
@@ -105,17 +105,15 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
                const std::string& basis_type) {
   // Extract parameters
   std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  const arma::ivec p_dims = path_.attr("dim");
-  n_dec = p_dims(0);
-  n_path = p_dims(1);
-  n_dim = (p_dims.n_elem == 2) ? 1 : p_dims(2);
-  arma::cube path(path_.begin(), n_dec, n_path, n_dim, false);
+  n_dec = path.n_rows;
+  n_path = path.n_cols;
+  n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
   n_pos = c_dims(0);
   n_action = c_dims(1);
   // Determine if full control or partial control of finite state Markov chain
-  arma::cube control2;
-  arma::imat control;
+  arma::imat control;  // full control
+  arma::cube control2;  // partial control
   bool full_control;
   if (c_dims.n_elem == 3) {
     full_control = false;
@@ -130,13 +128,17 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
   std::size_t n_terms = arma::accu(basis);  // Number of features in basis
   if (intercept) { n_terms++; }
   // Perform the Bellman recursion starting at last time epoch
-  Rcpp::Rcout << "At dec: " << n_dec - 1 << "...";
+  Rcpp::Rcout << "At dec: " << n_dec  << "...";
   arma::cube path_values(n_path, n_pos, n_dec);
   arma::ucube path_policy(n_path, n_pos, n_dec - 1);
-  arma::mat temp_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
-  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
-  states = temp_states.t();
+  arma::mat t_states(n_dim, n_path);
+  if (n_dim != 1) {
+    states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  } else {  // armadillo doesnt behave the way I want when n_dim = 1
+    t_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+    states = t_states.t();
+  }
   path_values.slice(n_dec - 1) = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   arma::cube expected_value(n_terms, n_pos, n_dec - 1);  // Regression fit
@@ -144,9 +146,13 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
   arma::cube reward_values(n_path, n_action, n_pos);
   // Perform Backward induction
   for (int tt = (n_dec - 2); tt >= 0; tt--) {
-    Rcpp::Rcout << tt << "...";
-    temp_states = path.tube(arma::span(tt), arma::span::all);
-    states = temp_states.t();
+    Rcpp::Rcout << tt + 1 << "...";
+    if (n_dim != 1) {
+      states = path.tube(arma::span(tt), arma::span::all);
+    } else {  // armadillo doesnt behave the way I want when n_dim = 1
+      t_states = path.tube(arma::span(tt), arma::span::all);
+      states = t_states.t();
+    }
     // Compute the fitted continuation value
     if (basis_type == "power") {
       reg_basis = PBasis(states, basis, intercept, n_terms);
@@ -156,7 +162,7 @@ Rcpp::List LSM(Rcpp::NumericVector path_,
           SVDCoeff(reg_basis, path_values.slice(tt + 1).col(pp));
     }
     reward_values = Rcpp::as<arma::cube>(
-        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));  // Indexing of this??
+        Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
     if (full_control) {
       Optimal(path_values, path_policy, expected_value, reg_basis,
               reward_values, control, tt, n_path, n_pos, n_action, n_dim);

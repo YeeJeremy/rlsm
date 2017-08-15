@@ -9,12 +9,12 @@
 // d X_t = u dt + s dW_t, W_t is Wiener process
 // [i,j]: state at time i for sample path j
 //[[Rcpp::export]]
-arma::mat BM(const double& start,
-             const double& mu,
-             const double& vol,
-             const int& n_dec,
-             const int& n_path,
-             const bool& antithetic) {
+arma::cube BM(const double& start,
+              const double& mu,
+              const double& vol,
+              const int& n_dec,
+              const int& n_path,
+              const bool& antithetic) {
   // Standard Gaussian increments
   arma::mat increments(n_dec - 1, n_path);
   if (antithetic) {  // use anti-thetic disturbances
@@ -25,10 +25,10 @@ arma::mat BM(const double& start,
   }
   increments = mu + vol * increments;
   // Simulating Brownian motion
-  arma::mat path(n_dec, n_path);
-  path.row(0).fill(start);
+  arma::cube path(n_dec, n_path, 1);
+  path.slice(0).row(0).fill(start);
   for (int tt = 1; tt < n_dec; tt++) {
-    path.row(tt) = path.row(tt - 1) + increments.row(tt - 1);
+    path.slice(0).row(tt) = path.slice(0).row(tt - 1) + increments.row(tt - 1);
   }
   return path;
 }
@@ -37,19 +37,19 @@ arma::mat BM(const double& start,
 // d X_t = u X_t dt + s X_t dW_t, W_t is Wiener process
 // [i,j]: state at time i for sample path j
 //[[Rcpp::export]]
-arma::mat GBM(const double& start,
-              const double& mu,
-              const double& vol,
-              const int& n_dec,
-              const int& n_path,
-              const bool& antithetic) {
-  arma::mat path(n_dec, n_path);
+arma::cube GBM(const double& start,
+               const double& mu,
+               const double& vol,
+               const int& n_dec,
+               const int& n_path,
+               const bool& antithetic) {
+  arma::cube path(n_dec, n_path, 1);
   double bm_start = 0;
   path = BM(bm_start, mu, vol, n_dec, n_path, antithetic);
   path = start * arma::exp(path);
   double ito = -0.5 * vol * vol;
   for (int tt = 1 ; tt < n_dec; tt++) {
-    path.row(tt) = path.row(tt) * std::exp(ito * tt);
+    path.slice(0).row(tt) = path.slice(0).row(tt) * std::exp(ito * tt);
   }
   return path;
 }

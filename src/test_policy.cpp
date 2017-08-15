@@ -23,18 +23,16 @@ arma::uword NextPosition(const arma::vec &prob_weight) {
 // Test the prescribed policy on a set of sample paths
 //[[Rcpp::export]]
 arma::vec TestPolicy(const int& start_position,
-                     Rcpp::NumericVector path_,
+                     const arma::cube& path,
                      Rcpp::NumericVector control_,
                      Rcpp::Function Reward_,
                      Rcpp::Function Scrap_,
                      const arma::ucube& path_action) {
   // Extract parameters
   std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  const arma::ivec p_dims = path_.attr("dim");
-  n_dec = p_dims(0);
-  n_path = p_dims(1);
-  n_dim = (p_dims.n_elem == 2) ? 1 : p_dims(2);
-  arma::cube path(path_.begin(), n_dec, n_path, n_dim, false);
+  n_dec = path.n_rows;
+  n_path = path.n_cols;
+  n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
   n_pos = c_dims(0);
   n_action = c_dims(1);
@@ -55,15 +53,19 @@ arma::vec TestPolicy(const int& start_position,
   arma::vec value(n_path, arma::fill::zeros);
   arma::uvec pos(n_path);
   pos.fill(start_position - 1);  // Initialise with starting position
-  arma::mat temp_states(n_dim, n_path);
+  arma::mat t_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   arma::cube reward(n_path, n_action, n_pos);
   arma::mat scrap(n_path, n_pos);
   arma::uword policy;
   if (full_control) {
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
@@ -75,8 +77,12 @@ arma::vec TestPolicy(const int& start_position,
   } else {
     arma::vec prob_weight(n_pos);
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }      
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
@@ -88,8 +94,12 @@ arma::vec TestPolicy(const int& start_position,
     }    
   }
   // Get the scrap value
-  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
-  states = temp_states.t();
+  if (n_dim != 1) {
+    states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  } else {  // armadillo doesnt behave the way I want when n_dim = 1
+    t_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+    states = t_states.t();
+  }
   scrap = Rcpp::as<arma::mat>(Scrap_(
       Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   for (std::size_t ww = 0; ww < n_path; ww++) {
@@ -101,18 +111,16 @@ arma::vec TestPolicy(const int& start_position,
 // Test the prescribed policy on a set of sample paths (return more info)
 //[[Rcpp::export]]
 Rcpp::List TestPolicy2(const int& start_position,
-                       Rcpp::NumericVector path_,
+                       const arma::cube& path,
                        Rcpp::NumericVector control_,
                        Rcpp::Function Reward_,
                        Rcpp::Function Scrap_,
                        const arma::ucube& path_action) {
   // Extract parameters
   std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  const arma::ivec p_dims = path_.attr("dim");
-  n_dec = p_dims(0);
-  n_path = p_dims(1);
-  n_dim = (p_dims.n_elem == 2) ? 1 : p_dims(2);
-  arma::cube path(path_.begin(), n_dec, n_path, n_dim, false);
+  n_dec = path.n_rows;
+  n_path = path.n_cols;
+  n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
   n_pos = c_dims(0);
   n_action = c_dims(1);
@@ -136,15 +144,19 @@ Rcpp::List TestPolicy2(const int& start_position,
   arma::uvec pos(n_path);
   pos.fill(start_position - 1);  // Initialise with starting position
   position.col(0) = pos;
-  arma::mat temp_states(n_dim, n_path);
+  arma::mat t_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   arma::cube reward(n_path, n_action, n_pos);
   arma::mat scrap(n_path, n_pos);
   arma::uword policy;
   if (full_control) {
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
@@ -158,8 +170,12 @@ Rcpp::List TestPolicy2(const int& start_position,
   } else {
     arma::vec prob_weight(n_pos);
     for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
-      temp_states = path.tube(arma::span(tt), arma::span::all);
-      states = temp_states.t();
+      if (n_dim != 1) {
+        states = path.tube(arma::span(tt), arma::span::all);
+      } else {  // armadillo doesnt behave the way I want when n_dim = 1
+        t_states = path.tube(arma::span(tt), arma::span::all);
+        states = t_states.t();
+      }   
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
@@ -173,8 +189,12 @@ Rcpp::List TestPolicy2(const int& start_position,
     }
   }
   // Get the scrap value
-  temp_states = path.tube(arma::span(n_dec - 1), arma::span::all);
-  states = temp_states.t();
+  if (n_dim != 1) {
+    states = path.tube(arma::span(n_dec - 1), arma::span::all);
+  } else {  // armadillo doesnt behave the way I want when n_dim = 1
+    t_states = path.tube(arma::span(n_dec - 1), arma::span::all);
+    states = t_states.t();
+  }
   scrap = Rcpp::as<arma::mat>(Scrap_(
       Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   for (std::size_t ww = 0; ww < n_path; ww++) {
