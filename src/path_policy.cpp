@@ -40,7 +40,7 @@ arma::ucube PathPolicy(const arma::cube& path,
   if (intercept) { n_terms++; }
   arma::mat reg_basis(n_path, n_terms);
   // Extract the prescribed policy
-  arma::ucube policy(n_dec - 1, n_pos, n_path);
+  arma::ucube policy(n_path, n_pos, n_dec - 1);
   std::size_t tt, pp, aa, nn;
   arma::mat fitted_expected(n_path, n_pos);
   arma::mat compare(n_path, n_action);
@@ -67,7 +67,7 @@ arma::ucube PathPolicy(const arma::cube& path,
           nn = control(pp, aa) - 1;  // Next position + R index starts at 1
           compare.col(aa) += fitted_expected.col(nn);
         }
-        policy.tube(tt, pp) = arma::index_max(compare, 1);  // R indexing
+        policy.slice(tt).col(pp) = arma::index_max(compare, 1);
       }
     }
   } else {
@@ -91,9 +91,9 @@ arma::ucube PathPolicy(const arma::cube& path,
           trans_prob = control2.tube(pp, aa);
           compare.col(aa) += fitted_expected * trans_prob;
         }
-        policy.tube(tt, pp) = arma::index_max(compare, 1);  // R indexing
+        policy.slice(tt).col(pp) = arma::index_max(compare, 1);
       }
     }
   }
-  return (policy + 1);
+  return (policy + 1);  // C++ indexing to R indexing
 }

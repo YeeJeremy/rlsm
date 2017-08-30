@@ -20,6 +20,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// Bounds
+Rcpp::List Bounds(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::cube& mart, const arma::ucube& path_action);
+RcppExport SEXP rlsm_Bounds(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP martSEXP, SEXP path_actionSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Reward_(Reward_SEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Scrap_(Scrap_SEXP);
+    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type mart(martSEXP);
+    Rcpp::traits::input_parameter< const arma::ucube& >::type path_action(path_actionSEXP);
+    rcpp_result_gen = Rcpp::wrap(Bounds(path, Reward_, Scrap_, control_, mart, path_action));
+    return rcpp_result_gen;
+END_RCPP
+}
 // SVDCoeff
 arma::vec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
 RcppExport SEXP rlsm_SVDCoeff(SEXP xregSEXP, SEXP yregSEXP) {

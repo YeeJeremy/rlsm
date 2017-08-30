@@ -69,9 +69,9 @@ arma::vec TestPolicy(const int& start_position,
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(tt, pos(ww), ww) - 1;
+        policy = path_action(ww, pos(ww), tt) - 1;  // R to C indexing
         value(ww) += reward(ww, policy, pos(ww));
-        pos(ww) = control(pos(ww), policy) - 1;
+        pos(ww) = control(pos(ww), policy) - 1;  // R to C index
       }
     }
   } else {
@@ -86,7 +86,7 @@ arma::vec TestPolicy(const int& start_position,
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(tt, pos(ww), ww) - 1;
+        policy = path_action(ww, pos(ww), tt) - 1;  // R to C indexing
         value(ww) += reward(ww, policy, pos(ww));
         prob_weight = control2.tube(pos(ww), policy);
         pos(ww) = NextPosition(prob_weight);
@@ -160,10 +160,10 @@ Rcpp::List TestPolicy2(const int& start_position,
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(tt, pos(ww), ww) - 1;
+        policy = path_action(ww, pos(ww), tt) - 1;  // R indexing
         action(ww, tt) = policy;
         value(ww) += reward(ww, policy, pos(ww));
-        pos(ww) = control(pos(ww), policy) - 1;
+        pos(ww) = control(pos(ww), policy) - 1;  // R indexing
       }
       position.col(tt + 1) = pos;
     }
@@ -179,7 +179,7 @@ Rcpp::List TestPolicy2(const int& start_position,
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
       for (std::size_t ww = 0; ww < n_path; ww++) {
-        policy = path_action(tt, pos(ww), ww) - 1;
+        policy = path_action(ww, pos(ww), tt) - 1;  // R indexing
         action(ww, tt) = policy;
         value(ww) += reward(ww, policy, pos(ww));
         prob_weight = control2.tube(pos(ww), policy);

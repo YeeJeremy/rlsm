@@ -5,6 +5,10 @@ PBasis <- function(data, basis, intercept, n_terms) {
     .Call('rlsm_PBasis', PACKAGE = 'rlsm', data, basis, intercept, n_terms)
 }
 
+Bounds <- function(path, Reward_, Scrap_, control_, mart, path_action) {
+    .Call('rlsm_Bounds', PACKAGE = 'rlsm', path, Reward_, Scrap_, control_, mart, path_action)
+}
+
 SVDCoeff <- function(xreg, yreg) {
     .Call('rlsm_SVDCoeff', PACKAGE = 'rlsm', xreg, yreg)
 }
