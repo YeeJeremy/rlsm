@@ -76,6 +76,7 @@ arma::cube NestedCBM(const arma::cube& path,
   // Perfrom the subsimulation
   // Store output as cube because field<cube> less efficient
   // Slices 1:(n_dec - 1) is for the first dim, and so on.
+  // Will transform this to 4-d array in R
   arma::cube subsim(n_subsim, n_path, (n_dec - 1) * n_dim);
   arma::cube increments(n_subsim, n_path, n_dim);
   arma::mat states(1, n_path);
@@ -102,3 +103,34 @@ arma::cube NestedCBM(const arma::cube& path,
   return subsim;
 }
 
+// Nested simulation for correlated geometric Brownian motion
+//[[Rcpp::export]]
+arma::cube NestedCGBM(const arma::cube& path,
+                      const arma::vec& mu,
+                      const arma::vec& vol,
+                      const arma::mat& corr,
+                      const int& n_subsim,
+                      const bool& antithetic) {
+  // Extract parameters
+  const std::size_t n_dec = path.n_rows;
+  const std::size_t n_path = path.n_cols;
+  const std::size_t n_dim = path.n_slices;
+  // Store output as cube because field<cube> less efficient
+  // Slices 1:(n_dec - 1) is for the first dim, and so on.
+  // Will transform this to 4-d array in R
+  arma::cube subsim(n_subsim, n_path, (n_dec - 1) * n_dim);
+  // Perfrom the subsimulation
+  arma::cube pathCBM(n_dec, n_path, n_dim, arma::fill::zeros);
+  subsim = NestedCBM(pathCBM, mu, vol, corr, n_subsim, antithetic);
+  arma::mat states(1, n_path);
+  const arma::vec ito = arma::exp(-0.5 * vol % vol);
+  for (std::size_t dd = 0; dd < n_dim; dd++) {
+    for (std::size_t tt =0; tt < n_dec - 1; tt++) {
+      states = path.slice(dd).row(tt);
+      subsim.slice((n_dec - 1) * dd + tt) =
+          ito(dd) * arma::repmat(states, n_subsim, 1) %
+          arma::exp(subsim.slice((n_dec - 1) * dd + tt));
+    }
+  }
+  return subsim;
+}
