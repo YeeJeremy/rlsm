@@ -29,13 +29,12 @@ arma::vec TestPolicy(const int& start_position,
                      Rcpp::Function Scrap_,
                      const arma::ucube& path_action) {
   // Extract parameters
-  std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  n_dec = path.n_rows;
-  n_path = path.n_cols;
-  n_dim = path.n_slices;
+  const std::size_t n_dec = path.n_rows;
+  const std::size_t n_path = path.n_cols;
+  const std::size_t n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
-  n_pos = c_dims(0);
-  n_action = c_dims(1);
+  const std::size_t n_pos = c_dims(0);
+  const std::size_t n_action = c_dims(1);
   // Determine if full control or partial control of finite state Markov chain
   arma::cube control2;
   arma::imat control;
@@ -117,13 +116,12 @@ Rcpp::List TestPolicy2(const int& start_position,
                        Rcpp::Function Scrap_,
                        const arma::ucube& path_action) {
   // Extract parameters
-  std::size_t n_dec, n_path, n_dim, n_pos, n_action;
-  n_dec = path.n_rows;
-  n_path = path.n_cols;
-  n_dim = path.n_slices;
+  const std::size_t n_dec = path.n_rows;
+  const std::size_t n_path = path.n_cols;
+  const std::size_t n_dim = path.n_slices;
   const arma::ivec c_dims = control_.attr("dim");
-  n_pos = c_dims(0);
-  n_action = c_dims(1);
+  const std::size_t n_pos = c_dims(0);
+  const std::size_t n_action = c_dims(1);
   // Determine if full control or partial control of finite state Markov chain
   arma::cube control2;
   arma::imat control;
