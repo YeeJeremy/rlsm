@@ -103,9 +103,9 @@ Rcpp::List LSM(const arma::cube& path,
                const bool& intercept,
                const std::string& basis_type) {
   // Extract parameters
-  const std::size_t n_dec = path.n_rows;
-  const std::size_t n_path = path.n_cols;
-  const std::size_t n_dim = path.n_slices;
+  const std::size_t n_dec = path.n_slices;
+  const std::size_t n_path = path.n_rows;
+  const std::size_t n_dim = path.n_cols;
   const arma::ivec c_dims = control_.attr("dim");
   const std::size_t n_pos = c_dims(0);
   const std::size_t n_action = c_dims(1);
@@ -130,13 +130,7 @@ Rcpp::List LSM(const arma::cube& path,
   arma::cube path_values(n_path, n_pos, n_dec);
   arma::ucube path_policy(n_path, n_pos, n_dec - 1);
   arma::mat states(n_path, n_dim);
-  arma::mat t_states(n_dim, n_path);
-  if (n_dim != 1) {
-    states = path.tube(arma::span(n_dec - 1), arma::span::all);
-  } else {  // armadillo doesnt behave the way I want when n_dim = 1
-    t_states = path.tube(arma::span(n_dec - 1), arma::span::all);
-    states = t_states.t();
-  }
+  states = path.slice(n_dec - 1);
   path_values.slice(n_dec - 1) = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   arma::cube expected_value(n_terms, n_pos, n_dec - 1);  // Regression fit
@@ -145,12 +139,7 @@ Rcpp::List LSM(const arma::cube& path,
   // Perform Backward induction
   for (int tt = (n_dec - 2); tt >= 0; tt--) {
     Rcpp::Rcout << tt + 1 << "...";
-    if (n_dim != 1) {
-      states = path.tube(arma::span(tt), arma::span::all);
-    } else {  // armadillo doesnt behave the way I want when n_dim = 1
-      t_states = path.tube(arma::span(tt), arma::span::all);
-      states = t_states.t();
-    }
+    states = path.slice(tt);
     // Compute the fitted continuation value
     if (basis_type == "power") {
       reg_basis = PBasis(states, basis, intercept, n_terms);

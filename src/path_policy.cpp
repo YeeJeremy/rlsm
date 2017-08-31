@@ -14,9 +14,9 @@ arma::ucube PathPolicy(const arma::cube& path,
                        const bool& intercept,
                        const std::string& basis_type) {
   // Extract parameters
-  const std::size_t n_dec = path.n_rows;
-  const std::size_t n_path = path.n_cols;
-  const std::size_t n_dim = path.n_slices;
+  const std::size_t n_dec = path.n_slices;
+  const std::size_t n_path = path.n_rows;
+  const std::size_t n_dim = path.n_cols;
   const arma::ivec c_dims = control_.attr("dim");
   const std::size_t n_pos = c_dims(0);
   const std::size_t n_action = c_dims(1);
@@ -43,16 +43,10 @@ arma::ucube PathPolicy(const arma::cube& path,
   arma::mat fitted_expected(n_path, n_pos);
   arma::mat compare(n_path, n_action);
   arma::cube reward_values(n_path, n_action, n_pos);
-  arma::mat t_states(n_dim, n_path);
   arma::mat states(n_path, n_dim);
   if (full_control) {
     for (tt = 0; tt < n_dec - 1; tt++) {
-      if (n_dim != 1) {
-        states = path.tube(arma::span(tt), arma::span::all);
-      } else {  // armadillo doesnt behave the way I want when n_dim = 1
-        t_states = path.tube(arma::span(tt), arma::span::all);
-        states = t_states.t();
-      }
+      states = path.slice(tt);
       if (basis_type == "power") {
         reg_basis = PBasis(states, basis, intercept, n_terms);
       }
@@ -71,12 +65,7 @@ arma::ucube PathPolicy(const arma::cube& path,
   } else {
     arma::vec trans_prob(n_pos);  // The transition probabilities
     for (tt = 0; tt < n_dec - 1; tt++) {
-      if (n_dim != 1) {
-        states = path.tube(arma::span(tt), arma::span::all);
-      } else {  // armadillo doesnt behave the way I want when n_dim = 1
-        t_states = path.tube(arma::span(tt), arma::span::all);
-        states = t_states.t();
-      }
+      states = path.slice(tt);
       if (basis_type == "power") {
         reg_basis = PBasis(states, basis, intercept, n_terms);
       }

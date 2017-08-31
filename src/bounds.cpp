@@ -14,9 +14,9 @@ Rcpp::List Bounds(const arma::cube& path,
                   const arma::cube& mart,
                   const arma::ucube& path_action) {
   // Extract parameters
-  const std::size_t n_dec = path.n_rows;
-  const std::size_t n_path = path.n_cols;
-  const std::size_t n_dim = path.n_slices;
+  const std::size_t n_dec = path.n_slices;
+  const std::size_t n_path = path.n_rows;
+  const std::size_t n_dim = path.n_cols;
   const arma::ivec c_dims = control_.attr("dim");
   const std::size_t n_pos = c_dims(0);
   const std::size_t n_action = c_dims(1);
@@ -35,13 +35,7 @@ Rcpp::List Bounds(const arma::cube& path,
   }
   // Initialise with scrap value
   arma::mat states(n_path, n_dim);
-  arma::mat t_states(n_dim, n_path);
-  if (n_dim != 1) {
-    states = path.tube(arma::span(n_dec - 1), arma::span::all);
-  } else {  // armadillo doesnt behave the way I want when n_dim = 1
-    t_states = path.tube(arma::span(n_dec - 1), arma::span::all);
-    states = t_states.t();
-  }
+  states = path.slice(n_dec - 1);
   arma::cube primals(n_path, n_pos, n_dec);
   primals.slice(n_dec - 1) = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
@@ -53,12 +47,7 @@ Rcpp::List Bounds(const arma::cube& path,
   if (full_control) {  // For the full control case
     arma::uword next;
     for (int tt = (n_dec - 2); tt >= 0; tt--) {
-      if (n_dim != 1) {
-        states = path.tube(arma::span(tt), arma::span::all);
-      } else {  // armadillo doesnt behave the way I want when n_dim = 1
-        t_states = path.tube(arma::span(tt), arma::span::all);
-        states = t_states.t();
-      }
+      states = path.slice(tt);
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
 #pragma omp parallel for private(pp, ii, policy, next, aa)
@@ -85,12 +74,7 @@ Rcpp::List Bounds(const arma::cube& path,
     arma::rowvec mod(n_pos);
     arma::rowvec prob_weight(n_pos);
     for (int tt = (n_dec - 2); tt >= 0; tt--) {
-      if (n_dim != 1) {
-        states = path.tube(arma::span(tt), arma::span::all);
-      } else {  // armadillo doesnt behave the way I want when n_dim = 1
-        t_states = path.tube(arma::span(tt), arma::span::all);
-        states = t_states.t();
-      }
+      states = path.slice(tt);
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
 #pragma omp parallel for private(pp, ii, policy, prob_weight, mod, aa)
