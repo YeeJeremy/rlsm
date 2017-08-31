@@ -27,7 +27,7 @@ arma::cube BM(const double& start,
   // Simulating Brownian motion
   arma::cube path(n_dec, n_path, 1);
   path.slice(0).row(0).fill(start);
-  for (int tt = 1; tt < n_dec; tt++) {
+  for (std::size_t tt = 1; tt < n_dec; tt++) {
     path.slice(0).row(tt) = path.slice(0).row(tt - 1) + increments.row(tt - 1);
   }
   return path;
@@ -48,7 +48,7 @@ arma::cube GBM(const double& start,
   path = BM(bm_start, mu, vol, n_dec, n_path, antithetic);
   path = start * arma::exp(path);
   const double ito = -0.5 * vol * vol;
-  for (int tt = 1 ; tt < n_dec; tt++) {
+  for (std::size_t tt = 1 ; tt < n_dec; tt++) {
     path.slice(0).row(tt) = path.slice(0).row(tt) * std::exp(ito * tt);
   }
   return path;
@@ -69,23 +69,23 @@ arma::cube CBM(const arma::vec& start,
   // Generating correlated increments
   arma::cube increments(n_dec - 1, n_path, n_dim);
   if (antithetic) {
-    for (int pp = 0; pp < (n_path / 2); pp++) {
+    for (std::size_t pp = 0; pp < (n_path / 2); pp++) {
       increments.tube(arma::span::all, arma::span(pp)) = CorrNormal(n_dec - 1, corr);
     }
     increments.tube(arma::span::all, arma::span(n_path / 2, n_path - 1)) =
         -increments.tube(arma::span::all, arma::span(0, n_path / 2 - 1));
   } else {
-    for (int pp = 0; pp < n_path; pp++) {
+    for (std::size_t pp = 0; pp < n_path; pp++) {
       increments.tube(arma::span::all, arma::span(pp)) = CorrNormal(n_dec - 1, corr);
     }
   }
   // Simulating Brownian motion
   arma::cube path(n_dec, n_path, n_dim);
-  for (int dd = 0; dd < n_dim; dd++) {
+  for (std::size_t dd = 0; dd < n_dim; dd++) {
     increments.slice(dd) = mu(dd) + vol(dd) * increments.slice(dd);
     path.slice(dd).row(0).fill(start(dd));
   }
-  for (int tt = 1; tt < n_dec; tt++) {
+  for (std::size_t tt = 1; tt < n_dec; tt++) {
     path.tube(arma::span(tt), arma::span::all) =
         path.tube(arma::span(tt - 1), arma::span::all) +
         increments.tube(arma::span(tt - 1), arma::span::all);

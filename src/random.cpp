@@ -6,6 +6,7 @@
 #include <Rcpp.h>
 
 // Generate correlated Gaussians using cholesky decomposition
+// Returns matric where eacl col = each dim
 //[[Rcpp::export]]
 arma::mat CorrNormal(const int& n,
                      const arma::mat& corr) {
