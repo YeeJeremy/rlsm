@@ -82,6 +82,18 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// CorrNormal
+arma::mat CorrNormal(const int& n, const arma::mat& corr);
+RcppExport SEXP rlsm_CorrNormal(SEXP nSEXP, SEXP corrSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type corr(corrSEXP);
+    rcpp_result_gen = Rcpp::wrap(CorrNormal(n, corr));
+    return rcpp_result_gen;
+END_RCPP
+}
 // BM
 arma::cube BM(const double& start, const double& mu, const double& vol, const int& n_dec, const int& n_path, const bool& antithetic);
 RcppExport SEXP rlsm_BM(SEXP startSEXP, SEXP muSEXP, SEXP volSEXP, SEXP n_decSEXP, SEXP n_pathSEXP, SEXP antitheticSEXP) {
@@ -111,18 +123,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type n_path(n_pathSEXP);
     Rcpp::traits::input_parameter< const bool& >::type antithetic(antitheticSEXP);
     rcpp_result_gen = Rcpp::wrap(GBM(start, mu, vol, n_dec, n_path, antithetic));
-    return rcpp_result_gen;
-END_RCPP
-}
-// CorrNormal
-arma::mat CorrNormal(const int& n, const arma::mat& corr);
-RcppExport SEXP rlsm_CorrNormal(SEXP nSEXP, SEXP corrSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const int& >::type n(nSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type corr(corrSEXP);
-    rcpp_result_gen = Rcpp::wrap(CorrNormal(n, corr));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -157,6 +157,36 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const int& >::type n_path(n_pathSEXP);
     Rcpp::traits::input_parameter< const bool& >::type antithetic(antitheticSEXP);
     rcpp_result_gen = Rcpp::wrap(CGBM(start, mu, vol, corr, n_dec, n_path, antithetic));
+    return rcpp_result_gen;
+END_RCPP
+}
+// NestedBM
+arma::cube NestedBM(const arma::cube& path, const double& mu, const double& vol, const int& n_subsim, const bool& antithetic);
+RcppExport SEXP rlsm_NestedBM(SEXP pathSEXP, SEXP muSEXP, SEXP volSEXP, SEXP n_subsimSEXP, SEXP antitheticSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const double& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double& >::type vol(volSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_subsim(n_subsimSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type antithetic(antitheticSEXP);
+    rcpp_result_gen = Rcpp::wrap(NestedBM(path, mu, vol, n_subsim, antithetic));
+    return rcpp_result_gen;
+END_RCPP
+}
+// NestedGBM
+arma::cube NestedGBM(const arma::cube& path, const double& mu, const double& vol, const int& n_subsim, const bool& antithetic);
+RcppExport SEXP rlsm_NestedGBM(SEXP pathSEXP, SEXP muSEXP, SEXP volSEXP, SEXP n_subsimSEXP, SEXP antitheticSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const double& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const double& >::type vol(volSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_subsim(n_subsimSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type antithetic(antitheticSEXP);
+    rcpp_result_gen = Rcpp::wrap(NestedGBM(path, mu, vol, n_subsim, antithetic));
     return rcpp_result_gen;
 END_RCPP
 }
