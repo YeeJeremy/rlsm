@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/random.h"
-#include <Rcpp.h>
 
 // Simulate one step 1-d Brownian motion from each path node
 //[[Rcpp::export]]

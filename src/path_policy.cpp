@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/basis.h"
-#include <Rcpp.h>
 
 // Extracting the prescribed policy on a set of sample paths
 //[[Rcpp::export]]

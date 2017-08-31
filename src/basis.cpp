@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/basis.h"
-#include <Rcpp.h>
 
 // Power polynomial regression basis
 //[[Rcpp::export]]

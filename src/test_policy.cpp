@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include <RcppArmadillo.h>
-#include <Rcpp.h>
 
 // Determine the next position for partial controlled positions
 arma::uword NextPosition(const arma::vec &prob_weight) {

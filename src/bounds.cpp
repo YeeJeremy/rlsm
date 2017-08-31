@@ -4,7 +4,6 @@
 
 #include <algorithm>
 #include <RcppArmadillo.h>
-#include <Rcpp.h>
 
 // Lower and upper bounds for the true value
 //[[Rcpp::export]]

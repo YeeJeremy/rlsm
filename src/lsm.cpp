@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/basis.h"
-#include <Rcpp.h>
 
 // Regression coefficients from singular value decomposition
 //[[Rcpp::export]]

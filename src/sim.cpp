@@ -3,7 +3,6 @@
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/random.h"
-#include <Rcpp.h>
 
 // Generate 1-dimensional Brownian motion with drift with unit time step
 // d X_t = u dt + s dW_t, W_t is Wiener process
