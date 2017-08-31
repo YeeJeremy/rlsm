@@ -1,5 +1,5 @@
 // Copyright 2017 <jeremyyee@outlook.com.au>
-// Nested simulation along a path for duality bounds
+// Nested simulation along a path for duality approach
 ////////////////////////////////////////////////////////////////////////////////
 
 #include "inst/include/random.h"
@@ -49,13 +49,13 @@ arma::cube NestedGBM(const arma::cube& path,
   const std::size_t n_dim = path.n_cols;
   // Perfrom the subsimulation
   arma::cube subsim(n_subsim, n_path, n_dec - 1);
-  arma::cube pathBM(n_dec, n_path, 1, arma::fill::zeros);
+  arma::cube pathBM(n_path, 1, n_dec, arma::fill::zeros);
   subsim = NestedBM(pathBM, mu, vol, n_subsim, antithetic);
   arma::mat states(n_path, 1);
   const double ito = std::exp(-0.5 * vol * vol);
   for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
     states = path.slice(tt);
-    subsim.slice(tt) = ito * arma::repmat(states.t(), n_subsim, 1) %
+    subsim.slice(tt) = ito * arma::repmat(arma::trans(states), n_subsim, 1) %
         arma::exp(subsim.slice(tt));
   }
   // Convert this to 4-D array in R
@@ -132,11 +132,12 @@ arma::cube NestedCGBM(const arma::cube& path,
   subsim = NestedCBM(pathCBM, mu, vol, corr, n_subsim, antithetic);
   arma::mat states(n_path, n_dim);
   const arma::vec ito = arma::exp(-0.5 * vol % vol);
+  const arma::mat itoMat = arma::repmat(ito.t(), n_subsim, 1);
   for (std::size_t tt =0; tt < n_dec - 1; tt++) {
     states = path.slice(tt);
     for (std::size_t pp = 0; pp < n_path; pp++) {
-      subsim.slice(n_path * tt + pp) = arma::repmat(ito % states.row(pp), n_subsim, 1)
-          % arma::exp(subsim.slice(n_path * tt + pp));
+      subsim.slice(n_path * tt + pp) = arma::repmat(states.row(pp), n_subsim, 1)
+          % arma::exp(subsim.slice(n_path * tt + pp)) % itoMat;
     }
   }
   return subsim;
