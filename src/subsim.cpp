@@ -2,7 +2,7 @@
 // Nested simulation along a path for duality bounds
 ////////////////////////////////////////////////////////////////////////////////
 
-#include <RcppArmadillo.h>
+#include "inst/include/random.h"
 #include <Rcpp.h>
 
 // Simulate one step 1-d Brownian motion from each path node
@@ -57,6 +57,47 @@ arma::cube NestedGBM(const arma::cube& path,
     states = path.slice(0).row(tt);
     subsim.slice(tt) = ito * arma::repmat(states, n_subsim, 1) %
         arma::exp(subsim.slice(tt));
+  }
+  return subsim;
+}
+
+// Nested simulation of correlated Brownian motion
+//[[Rcpp::export]]
+arma::cube NestedCBM(const arma::cube& path,
+                     const arma::vec& mu,
+                     const arma::vec& vol,
+                     const arma::mat& corr,
+                     const int& n_subsim,
+                     const bool& antithetic) {
+  // Extract parameters
+  const std::size_t n_dec = path.n_rows;
+  const std::size_t n_path = path.n_cols;
+  const std::size_t n_dim = path.n_slices;
+  // Perfrom the subsimulation
+  // Store output as cube because field<cube> less efficient
+  // Slices 1:(n_dec - 1) is for the first dim, and so on.
+  arma::cube subsim(n_subsim, n_path, (n_dec - 1) * n_dim);
+  arma::cube increments(n_subsim, n_path, n_dim);
+  arma::mat states(1, n_path);
+  for (std::size_t tt = 0; tt < n_dec - 1; tt++) {
+    // Generate the correlated increments
+    if (antithetic) {
+      for (std::size_t ss = 0; ss < (n_subsim / 2); ss++) {
+        increments.tube(arma::span(ss), arma::span::all) = CorrNormal(n_path, corr);
+      }
+      increments.tube(arma::span(n_subsim / 2, n_subsim - 1), arma::span::all) =
+          -increments.tube(arma::span(0, n_subsim / 2 - 1), arma::span::all);
+    } else {
+      for (std::size_t ss = 0; ss < n_subsim; ss++) {
+        increments.tube(arma::span(ss), arma::span::all) = CorrNormal(n_path, corr);
+      }
+    }
+    for (std::size_t dd = 0; dd < n_dim; dd++) {
+      increments.slice(dd) = mu(dd) + vol(dd) * increments.slice(dd);
+      states = path.slice(dd).row(tt);
+      subsim.slice((n_dec - 1) * dd + tt) =
+          arma::repmat(states, n_subsim, 1) + increments.slice(dd);
+    }
   }
   return subsim;
 }

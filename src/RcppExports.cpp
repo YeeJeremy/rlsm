@@ -190,6 +190,22 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// NestedCBM
+arma::cube NestedCBM(const arma::cube& path, const arma::vec& mu, const arma::vec& vol, const arma::mat& corr, const int& n_subsim, const bool& antithetic);
+RcppExport SEXP rlsm_NestedCBM(SEXP pathSEXP, SEXP muSEXP, SEXP volSEXP, SEXP corrSEXP, SEXP n_subsimSEXP, SEXP antitheticSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type mu(muSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type vol(volSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type corr(corrSEXP);
+    Rcpp::traits::input_parameter< const int& >::type n_subsim(n_subsimSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type antithetic(antitheticSEXP);
+    rcpp_result_gen = Rcpp::wrap(NestedCBM(path, mu, vol, corr, n_subsim, antithetic));
+    return rcpp_result_gen;
+END_RCPP
+}
 // TestPolicy
 arma::vec TestPolicy(const int& start_position, const arma::cube& path, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
 RcppExport SEXP rlsm_TestPolicy(SEXP start_positionSEXP, SEXP pathSEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {

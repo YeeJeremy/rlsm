@@ -49,6 +49,10 @@ NestedGBM <- function(path, mu, vol, n_subsim, antithetic) {
     .Call('rlsm_NestedGBM', PACKAGE = 'rlsm', path, mu, vol, n_subsim, antithetic)
 }
 
+NestedCBM <- function(path, mu, vol, corr, n_subsim, antithetic) {
+    .Call('rlsm_NestedCBM', PACKAGE = 'rlsm', path, mu, vol, corr, n_subsim, antithetic)
+}
+
 TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
     .Call('rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
