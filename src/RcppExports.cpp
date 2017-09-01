@@ -7,20 +7,18 @@
 using namespace Rcpp;
 
 // AddDual
-arma::cube AddDual(const arma::cube& path, Rcpp::NumericVector subsim_, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::cube& expected, const arma::umat& basis, const std::string& basis_type);
-RcppExport SEXP rlsm_AddDual(SEXP pathSEXP, SEXP subsim_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP expectedSEXP, SEXP basisSEXP, SEXP basis_typeSEXP) {
+arma::cube AddDual(const arma::cube& path, Rcpp::NumericVector subsim_, const arma::cube& fitted_value, const Rcpp::Function& Scrap_, const arma::umat& basis, const std::string& basis_type);
+RcppExport SEXP rlsm_AddDual(SEXP pathSEXP, SEXP subsim_SEXP, SEXP fitted_valueSEXP, SEXP Scrap_SEXP, SEXP basisSEXP, SEXP basis_typeSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
     Rcpp::traits::input_parameter< Rcpp::NumericVector >::type subsim_(subsim_SEXP);
-    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Reward_(Reward_SEXP);
+    Rcpp::traits::input_parameter< const arma::cube& >::type fitted_value(fitted_valueSEXP);
     Rcpp::traits::input_parameter< const Rcpp::Function& >::type Scrap_(Scrap_SEXP);
-    Rcpp::traits::input_parameter< Rcpp::NumericVector >::type control_(control_SEXP);
-    Rcpp::traits::input_parameter< const arma::cube& >::type expected(expectedSEXP);
     Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(AddDual(path, subsim_, Reward_, Scrap_, control_, expected, basis, basis_type));
+    rcpp_result_gen = Rcpp::wrap(AddDual(path, subsim_, fitted_value, Scrap_, basis, basis_type));
     return rcpp_result_gen;
 END_RCPP
 }
