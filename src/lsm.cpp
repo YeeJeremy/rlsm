@@ -134,6 +134,7 @@ Rcpp::List LSM(const arma::cube& path,
   path_values.slice(n_dec - 1) = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
   arma::cube expected_value(n_terms, n_pos, n_dec - 1);  // Regression fit
+  arma::cube fitted_value(n_terms, n_pos, n_dec - 1);  // Regression fit
   arma::mat reg_basis(n_path, n_terms);
   arma::cube reward_values(n_path, n_action, n_pos);
   // Perform Backward induction
@@ -157,9 +158,15 @@ Rcpp::List LSM(const arma::cube& path,
       Optimal(path_values, path_policy, expected_value, reg_basis,
               reward_values, control2, tt, n_path, n_pos, n_action, n_dim);
     }
+    // Compute the fitted value function approximation
+    for (std::size_t pp = 0; pp < n_pos; pp++) {
+      fitted_value.slice(tt).col(pp) =
+          SVDCoeff(reg_basis, path_values.slice(tt).col(pp));
+    }
   }
   Rcpp::Rcout << "end\n";
   return Rcpp::List::create(Rcpp::Named("value") = path_values,
+                            Rcpp::Named("fitted") = fitted_value,
                             Rcpp::Named("policy") = path_policy,
                             Rcpp::Named("expected") = expected_value);
 }
