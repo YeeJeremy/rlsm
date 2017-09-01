@@ -41,7 +41,7 @@ arma::cube AddDual(const arma::cube& path,
       add_dual.slice(tt).row(pp) +=
           arma::sum(subsim_basis * fitted_value.slice(tt + 1), 0);
     }
-    add_dual.slice(tt) = (1 / n_subsim) * add_dual.slice(tt);
+    add_dual.slice(tt) = (1.0 / n_subsim) * add_dual.slice(tt);
     // Find the realised value
     if (basis_type == "power") {
       path_basis = PBasis(path.slice(tt + 1), basis, intercept, n_terms);
@@ -53,13 +53,13 @@ arma::cube AddDual(const arma::cube& path,
   tt = n_dec - 2;
   for (std::size_t pp = 0; pp < n_path; pp++) {
     // Average for each path
-    add_dual.slice(tt).row(pp) += Rcpp::as<arma::mat>(
-        Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(subsim.slice(n_path * tt + pp)))));
+    add_dual.slice(tt).row(pp) += arma::sum(Rcpp::as<arma::mat>(
+        Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(subsim.slice(n_path * tt + pp))))),
+                                            0);
   }
-  add_dual.slice(tt) = (1 / n_subsim) * add_dual.slice(tt);
+  add_dual.slice(tt) = (1.0 / n_subsim) * add_dual.slice(tt);
   // Find the realised value
   add_dual.slice(tt) -= Rcpp::as<arma::mat>(
         Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(path.slice(tt + 1)))));
-  
   return add_dual;
 }
