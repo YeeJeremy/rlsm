@@ -8,6 +8,7 @@ Maintainer: Jeremy Yee <jeremyyee@outlook.com.au>
 Description: Least squares Monte Carlo and duality methods for Markov decision processes.
 URL: https://github.com/YeeJeremy/rlsm
 License: GPL
+Depends: StochasticProcess (>= 1.0)
 Imports: Rcpp (>= 0.11.6)
 LinkingTo: Rcpp, RcppArmadillo
 NeedsCompilation: yes

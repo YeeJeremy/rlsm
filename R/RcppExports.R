@@ -33,42 +33,6 @@ PathPolicy <- function(path, expected_value, Reward_, control_, basis, intercept
     .Call('rlsm_PathPolicy', PACKAGE = 'rlsm', path, expected_value, Reward_, control_, basis, intercept, basis_type)
 }
 
-CorrNormal <- function(n, corr) {
-    .Call('rlsm_CorrNormal', PACKAGE = 'rlsm', n, corr)
-}
-
-BM <- function(start, mu, vol, n_dec, n_path, antithetic) {
-    .Call('rlsm_BM', PACKAGE = 'rlsm', start, mu, vol, n_dec, n_path, antithetic)
-}
-
-GBM <- function(start, mu, vol, n_dec, n_path, antithetic) {
-    .Call('rlsm_GBM', PACKAGE = 'rlsm', start, mu, vol, n_dec, n_path, antithetic)
-}
-
-CBM <- function(start, mu, vol, corr, n_dec, n_path, antithetic) {
-    .Call('rlsm_CBM', PACKAGE = 'rlsm', start, mu, vol, corr, n_dec, n_path, antithetic)
-}
-
-CGBM <- function(start, mu, vol, corr, n_dec, n_path, antithetic) {
-    .Call('rlsm_CGBM', PACKAGE = 'rlsm', start, mu, vol, corr, n_dec, n_path, antithetic)
-}
-
-NestedBM <- function(path, mu, vol, n_subsim, antithetic) {
-    .Call('rlsm_NestedBM', PACKAGE = 'rlsm', path, mu, vol, n_subsim, antithetic)
-}
-
-NestedGBM <- function(path, mu, vol, n_subsim, antithetic) {
-    .Call('rlsm_NestedGBM', PACKAGE = 'rlsm', path, mu, vol, n_subsim, antithetic)
-}
-
-NestedCBM <- function(path, mu, vol, corr, n_subsim, antithetic) {
-    .Call('rlsm_NestedCBM', PACKAGE = 'rlsm', path, mu, vol, corr, n_subsim, antithetic)
-}
-
-NestedCGBM <- function(path, mu, vol, corr, n_subsim, antithetic) {
-    .Call('rlsm_NestedCGBM', PACKAGE = 'rlsm', path, mu, vol, corr, n_subsim, antithetic)
-}
-
 TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
     .Call('rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
