@@ -22,6 +22,8 @@ arma::cube AddDual(const arma::cube& path,
   if (n_terms == arma::accu(basis)) {
     intercept = false;
   }
+  arma::uvec reccur_limit(basis.n_rows);
+  reccur_limit = ReccurLimit(basis);
   const arma::ivec s_dims = subsim_.attr("dim");
   const std::size_t n_subsim = s_dims(0);
   arma::cube subsim(subsim_.begin(), n_subsim, n_dim, n_path * (n_dec - 1), false);
@@ -35,7 +37,10 @@ arma::cube AddDual(const arma::cube& path,
     for (std::size_t pp = 0; pp < n_path; pp++) {
       if (basis_type == "power") {
         subsim_basis =
-            PBasis(subsim.slice(n_path * tt + pp), basis, intercept, n_terms);
+            PBasis(subsim.slice(n_path * tt + pp), basis, intercept, n_terms, reccur_limit);
+      } else if (basis_type == "laguerre") {
+         subsim_basis =
+             LBasis(subsim.slice(n_path * tt + pp), basis, intercept, n_terms, reccur_limit);
       }
       // Average for each path
       add_dual.slice(tt).row(pp) +=
@@ -44,7 +49,9 @@ arma::cube AddDual(const arma::cube& path,
     add_dual.slice(tt) = (1.0 / n_subsim) * add_dual.slice(tt);
     // Find the realised value
     if (basis_type == "power") {
-      path_basis = PBasis(path.slice(tt + 1), basis, intercept, n_terms);
+      path_basis = PBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
+    } else if (basis_type == "laguerre") {
+      path_basis = LBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
     }
     add_dual.slice(tt) -= path_basis * fitted_value.slice(tt + 1);
   }

@@ -41,8 +41,8 @@ BEGIN_RCPP
 END_RCPP
 }
 // PBasis
-arma::mat PBasis(const arma::mat& data, const arma::umat& basis, const bool& intercept, const std::size_t& n_terms);
-RcppExport SEXP rlsm_PBasis(SEXP dataSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP n_termsSEXP) {
+arma::mat PBasis(const arma::mat& data, const arma::umat& basis, const bool& intercept, const std::size_t& n_terms, const arma::uvec& reccur_limit);
+RcppExport SEXP rlsm_PBasis(SEXP dataSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP n_termsSEXP, SEXP reccur_limitSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -50,7 +50,23 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
     Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
     Rcpp::traits::input_parameter< const std::size_t& >::type n_terms(n_termsSEXP);
-    rcpp_result_gen = Rcpp::wrap(PBasis(data, basis, intercept, n_terms));
+    Rcpp::traits::input_parameter< const arma::uvec& >::type reccur_limit(reccur_limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(PBasis(data, basis, intercept, n_terms, reccur_limit));
+    return rcpp_result_gen;
+END_RCPP
+}
+// LBasis
+arma::mat LBasis(const arma::mat& data, const arma::umat& basis, const bool& intercept, const std::size_t& n_terms, const arma::uvec& reccur_limit);
+RcppExport SEXP rlsm_LBasis(SEXP dataSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP n_termsSEXP, SEXP reccur_limitSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
+    Rcpp::traits::input_parameter< const std::size_t& >::type n_terms(n_termsSEXP);
+    Rcpp::traits::input_parameter< const arma::uvec& >::type reccur_limit(reccur_limitSEXP);
+    rcpp_result_gen = Rcpp::wrap(LBasis(data, basis, intercept, n_terms, reccur_limit));
     return rcpp_result_gen;
 END_RCPP
 }

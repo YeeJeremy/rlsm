@@ -125,6 +125,8 @@ Rcpp::List LSM(const arma::cube& path,
   // Extract information about regression basis
   std::size_t n_terms = arma::accu(basis);  // Number of features in basis
   if (intercept) { n_terms++; }
+  arma::uvec reccur_limit(basis.n_rows);
+  reccur_limit = ReccurLimit(basis);
   // Perform the Bellman recursion starting at last time epoch
   Rcpp::Rcout << "At dec: " << n_dec  << "...";
   arma::cube path_values(n_path, n_pos, n_dec);
@@ -143,7 +145,9 @@ Rcpp::List LSM(const arma::cube& path,
     states = path.slice(tt);
     // Compute the fitted continuation value
     if (basis_type == "power") {
-      reg_basis = PBasis(states, basis, intercept, n_terms);
+      reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+    } else if (basis_type == "laguerre") {
+      reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
     }
     for (std::size_t pp = 0; pp < n_pos; pp++) {
       expected_value.slice(tt).col(pp) =

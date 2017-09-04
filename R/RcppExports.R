@@ -9,8 +9,12 @@ AddDual <- function(path, subsim_, fitted_value, Scrap_, basis, basis_type) {
     .Call('rlsm_AddDual', PACKAGE = 'rlsm', path, subsim_, fitted_value, Scrap_, basis, basis_type)
 }
 
-PBasis <- function(data, basis, intercept, n_terms) {
-    .Call('rlsm_PBasis', PACKAGE = 'rlsm', data, basis, intercept, n_terms)
+PBasis <- function(data, basis, intercept, n_terms, reccur_limit) {
+    .Call('rlsm_PBasis', PACKAGE = 'rlsm', data, basis, intercept, n_terms, reccur_limit)
+}
+
+LBasis <- function(data, basis, intercept, n_terms, reccur_limit) {
+    .Call('rlsm_LBasis', PACKAGE = 'rlsm', data, basis, intercept, n_terms, reccur_limit)
 }
 
 Bounds <- function(path, Reward_, Scrap_, control_, mart, path_action) {

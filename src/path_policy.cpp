@@ -37,6 +37,8 @@ arma::ucube PathPolicy(const arma::cube& path,
   std::size_t n_terms = arma::accu(basis);  // Number of features in basis
   if (intercept) { n_terms++; }
   arma::mat reg_basis(n_path, n_terms);
+  arma::uvec reccur_limit(basis.n_rows);
+  reccur_limit = ReccurLimit(basis);
   // Extract the prescribed policy
   arma::ucube policy(n_path, n_pos, n_dec - 1);
   std::size_t tt, pp, aa, nn;
@@ -48,7 +50,9 @@ arma::ucube PathPolicy(const arma::cube& path,
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
       if (basis_type == "power") {
-        reg_basis = PBasis(states, basis, intercept, n_terms);
+        reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+      } else if (basis_type == "laguerre") {
+        reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
@@ -67,7 +71,9 @@ arma::ucube PathPolicy(const arma::cube& path,
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
       if (basis_type == "power") {
-        reg_basis = PBasis(states, basis, intercept, n_terms);
+        reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+      } else if (basis_type == "laguerre") {
+        reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
