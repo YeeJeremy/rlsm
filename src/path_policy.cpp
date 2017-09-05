@@ -7,16 +7,20 @@
 // Extracting the prescribed policy on a set of sample paths
 //[[Rcpp::export]]
 arma::ucube PathPolicy(const arma::cube& path,
-                       const arma::cube& expected_value,
+                       const arma::cube& expected,
                        const Rcpp::Function& Reward_,
                        Rcpp::NumericVector control_,
                        const arma::umat& basis,
-                       const bool& intercept,
                        const std::string& basis_type) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;
   const std::size_t n_dim = path.n_cols;
+  const std::size_t n_terms = expected.n_rows;
+  bool intercept = true;
+  if (n_terms == arma::accu(basis)) {
+    intercept = false;
+  }
   const arma::ivec c_dims = control_.attr("dim");
   const std::size_t n_pos = c_dims(0);
   const std::size_t n_action = c_dims(1);
@@ -34,8 +38,6 @@ arma::ucube PathPolicy(const arma::cube& path,
     control = arma::conv_to<arma::imat>::from(temp_control);
   }
   // Extract information about regression basis
-  std::size_t n_terms = arma::accu(basis);  // Number of features in basis
-  if (intercept) { n_terms++; }
   arma::mat reg_basis(n_path, n_terms);
   arma::uvec reccur_limit(basis.n_rows);
   reccur_limit = ReccurLimit(basis);
@@ -56,7 +58,7 @@ arma::ucube PathPolicy(const arma::cube& path,
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
-      fitted_expected = reg_basis * expected_value.slice(tt);  // fitted values
+      fitted_expected = reg_basis * expected.slice(tt);  // fitted values
       for (pp = 0; pp < n_pos; pp++) {
         compare = reward_values.slice(pp);
         for (aa = 0; aa < n_action; aa++) {
@@ -77,7 +79,7 @@ arma::ucube PathPolicy(const arma::cube& path,
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
-      fitted_expected = reg_basis * expected_value.slice(tt);  // fitted values
+      fitted_expected = reg_basis * expected.slice(tt);  // fitted values
       for (pp = 0; pp < n_pos; pp++) {
         compare = reward_values.slice(pp);
         for (aa = 0; aa < n_action; aa++) {

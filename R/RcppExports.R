@@ -29,8 +29,8 @@ LSM <- function(path, Reward_, Scrap_, control_, basis, intercept, basis_type) {
     .Call('rlsm_LSM', PACKAGE = 'rlsm', path, Reward_, Scrap_, control_, basis, intercept, basis_type)
 }
 
-PathPolicy <- function(path, expected_value, Reward_, control_, basis, intercept, basis_type) {
-    .Call('rlsm_PathPolicy', PACKAGE = 'rlsm', path, expected_value, Reward_, control_, basis, intercept, basis_type)
+PathPolicy <- function(path, expected, Reward_, control_, basis, basis_type) {
+    .Call('rlsm_PathPolicy', PACKAGE = 'rlsm', path, expected, Reward_, control_, basis, basis_type)
 }
 
 TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
