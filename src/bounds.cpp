@@ -4,6 +4,10 @@
 
 #include <algorithm>
 #include <RcppArmadillo.h>
+#ifdef _OPENMP
+#include <omp.h>
+#endif
+#include <Rcpp.h>
 
 // Lower and upper bounds for the true value
 //[[Rcpp::export]]
