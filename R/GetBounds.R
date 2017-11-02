@@ -1,4 +1,4 @@
-## Copyright 2015 <Jeremy Yee> <jeremyyee@outlook.com.au>
+## Copyright 2017 <Jeremy Yee> <jeremyyee@outlook.com.au>
 ## Obtaining confidence intervals for primal-dual approach
 ################################################################################
 
