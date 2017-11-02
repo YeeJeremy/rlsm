@@ -75,7 +75,9 @@ arma::cube AddDual(const arma::cube& path,
   arma::uword best_action;
   arma::vec trans_prob(n_pos);  // The transition probabilities
   arma::vec temp(n_subsim);
-  for (tt = 0; tt < n_dec - 2; tt++) {
+  Rcpp::Rcout << "Additive duals at dec: ";
+  for (tt = 0; tt < (n_dec - 2); tt++) {
+    Rcpp::Rcout << tt << "...";
     // Find the average of the subsimulation paths
     for (pp = 0; pp < n_path; pp++) {
       states = subsim.slice(n_path * tt + pp);
@@ -157,6 +159,7 @@ arma::cube AddDual(const arma::cube& path,
     }
   }
   // Find the duals for the scrap
+  Rcpp::Rcout << n_dec - 1 << "...";
   // Find the average of the subsimulation paths
   tt = n_dec - 2;
   for (std::size_t pp = 0; pp < n_path; pp++) {
@@ -169,5 +172,6 @@ arma::cube AddDual(const arma::cube& path,
   // Find the realised value
   add_dual.slice(tt) -= Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(path.slice(tt + 1)))));
+  Rcpp::Rcout << "done\n";
   return add_dual;
 }

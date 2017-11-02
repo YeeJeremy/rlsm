@@ -23,7 +23,6 @@ arma::vec SVDCoeff(const arma::mat& xreg,
 
 // Best action given regression basis (position control deterministic)
 void Optimal(arma::cube& path_values,
-             arma::ucube& path_policy,
              const arma::cube& expected_value,
              const arma::mat& reg_basis,
              const arma::cube& reward_values,
@@ -49,7 +48,6 @@ void Optimal(arma::cube& path_values,
     }
     for (ww = 0; ww < n_path; ww++) {
       compare.row(ww).max(best_action);  // Best action according to regression
-      path_policy(ww, pp, tt) = best_action + 1;
       path_values(ww, pp, tt) = reward_values(ww, best_action, pp) +
           path_values(ww, control(pp, best_action) - 1, tt + 1);
     }
@@ -58,7 +56,6 @@ void Optimal(arma::cube& path_values,
 
 // Best action given regression basis (position control not deterministic)
 void Optimal(arma::cube& path_values,
-             arma::ucube& path_policy,
              const arma::cube& expected_value,
              const arma::mat& reg_basis,
              const arma::cube& reward_values,
@@ -85,7 +82,6 @@ void Optimal(arma::cube& path_values,
     }
     for (ww = 0; ww < n_path; ww++) {
       compare.row(ww).max(best_action);  // Best action according to regression
-      path_policy(ww, pp, tt) = best_action + 1;
       trans_prob = control.tube(pp, best_action);
       path_values(ww, pp, tt) = reward_values(ww, best_action, pp)
           + arma::accu(path_values.slice(tt + 1).row(ww) * trans_prob);
@@ -140,7 +136,6 @@ Rcpp::List LSM(const arma::cube& path,
   // Perform the Bellman recursion starting at last time epoch
   Rcpp::Rcout << "At dec: " << n_dec  << "...";
   arma::cube path_values(n_path, n_pos, n_dec);
-  arma::ucube path_policy(n_path, n_pos, n_dec - 1);
   arma::mat states(n_path, n_dim);
   states = path.slice(n_dec - 1);
   path_values.slice(n_dec - 1) = Rcpp::as<arma::mat>(
@@ -172,16 +167,15 @@ Rcpp::List LSM(const arma::cube& path,
     reward_values = Rcpp::as<arma::cube>(
         Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
     if (full_control) {
-      Optimal(path_values, path_policy, expected_value, reg_basis,
-              reward_values, control, tt, n_path, n_pos, n_action, n_dim);
+      Optimal(path_values, expected_value, reg_basis, reward_values,
+              control, tt, n_path, n_pos, n_action, n_dim);
     } else {
-      Optimal(path_values, path_policy, expected_value, reg_basis,
-              reward_values, control2, tt, n_path, n_pos, n_action, n_dim);
+      Optimal(path_values, expected_value, reg_basis, reward_values,
+              control2, tt, n_path, n_pos, n_action, n_dim);
     }
   }
   Rcpp::Rcout << "end\n";
   return Rcpp::List::create(Rcpp::Named("value") = path_values,
-                            Rcpp::Named("policy") = path_policy,
                             Rcpp::Named("expected") = expected_value);
 }
 
