@@ -29,7 +29,7 @@ TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_act
     .Call('_rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
 
-TestPolicy2 <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
-    .Call('_rlsm_TestPolicy2', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
+FullTestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
+    .Call('_rlsm_FullTestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
 

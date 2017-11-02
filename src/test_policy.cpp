@@ -92,12 +92,12 @@ arma::vec TestPolicy(const int& start_position,
 
 // Test the prescribed policy on a set of sample paths (return more info)
 //[[Rcpp::export]]
-Rcpp::List TestPolicy2(const int& start_position,
-                       const arma::cube& path,
-                       Rcpp::NumericVector control_,
-                       Rcpp::Function Reward_,
-                       Rcpp::Function Scrap_,
-                       const arma::ucube& path_action) {
+Rcpp::List FullTestPolicy(const int& start_position,
+                          const arma::cube& path,
+                          Rcpp::NumericVector control_,
+                          Rcpp::Function Reward_,
+                          Rcpp::Function Scrap_,
+                          const arma::ucube& path_action) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;

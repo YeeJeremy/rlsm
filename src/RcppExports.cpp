@@ -162,9 +162,9 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// TestPolicy2
-Rcpp::List TestPolicy2(const int& start_position, const arma::cube& path, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
-RcppExport SEXP _rlsm_TestPolicy2(SEXP start_positionSEXP, SEXP pathSEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
+// FullTestPolicy
+Rcpp::List FullTestPolicy(const int& start_position, const arma::cube& path, Rcpp::NumericVector control_, Rcpp::Function Reward_, Rcpp::Function Scrap_, const arma::ucube& path_action);
+RcppExport SEXP _rlsm_FullTestPolicy(SEXP start_positionSEXP, SEXP pathSEXP, SEXP control_SEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP path_actionSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -174,7 +174,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< Rcpp::Function >::type Reward_(Reward_SEXP);
     Rcpp::traits::input_parameter< Rcpp::Function >::type Scrap_(Scrap_SEXP);
     Rcpp::traits::input_parameter< const arma::ucube& >::type path_action(path_actionSEXP);
-    rcpp_result_gen = Rcpp::wrap(TestPolicy2(start_position, path, control_, Reward_, Scrap_, path_action));
+    rcpp_result_gen = Rcpp::wrap(FullTestPolicy(start_position, path, control_, Reward_, Scrap_, path_action));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -190,7 +190,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_rlsm_LSM", (DL_FUNC) &_rlsm_LSM, 9},
     {"_rlsm_PathPolicy", (DL_FUNC) &_rlsm_PathPolicy, 8},
     {"_rlsm_TestPolicy", (DL_FUNC) &_rlsm_TestPolicy, 6},
-    {"_rlsm_TestPolicy2", (DL_FUNC) &_rlsm_TestPolicy2, 6},
+    {"_rlsm_FullTestPolicy", (DL_FUNC) &_rlsm_FullTestPolicy, 6},
     {NULL, NULL, 0}
 };
 
