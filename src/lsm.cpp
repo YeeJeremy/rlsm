@@ -101,7 +101,9 @@ Rcpp::List LSM(const arma::cube& path,
                Rcpp::NumericVector control_,
                const arma::umat& basis,
                const bool& intercept,
-               const std::string& basis_type) {
+               const std::string& basis_type,
+               const bool& spline,
+               const arma::mat& knots) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;
@@ -124,9 +126,17 @@ Rcpp::List LSM(const arma::cube& path,
   }
   // Extract information about regression basis
   std::size_t n_terms = arma::accu(basis);  // Number of features in basis
-  if (intercept) { n_terms++; }
+  if (intercept) {
+    n_terms++;
+  }
   arma::uvec reccur_limit(basis.n_rows);
   reccur_limit = ReccurLimit(basis);
+  arma::uvec reccur_limit2(knots.n_rows);
+  std::size_t n_knots = 0;
+  if (spline) {
+    reccur_limit2 = ReccurLimit2(knots);
+    n_knots = arma::sum(reccur_limit2);
+  }
   // Perform the Bellman recursion starting at last time epoch
   Rcpp::Rcout << "At dec: " << n_dec  << "...";
   arma::cube path_values(n_path, n_pos, n_dec);
@@ -135,20 +145,26 @@ Rcpp::List LSM(const arma::cube& path,
   states = path.slice(n_dec - 1);
   path_values.slice(n_dec - 1) = Rcpp::as<arma::mat>(
       Scrap_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
-  arma::cube expected_value(n_terms, n_pos, n_dec - 1);  // Regression fit
-  arma::cube fitted_value(n_terms, n_pos, n_dec - 1);  // Regression fit
-  arma::mat reg_basis(n_path, n_terms);
+  arma::cube expected_value(n_terms + n_knots, n_pos, n_dec - 1);  // fit
+  arma::mat reg_basis(n_path, n_terms + n_knots);
   arma::cube reward_values(n_path, n_action, n_pos);
   // Perform Backward induction
   for (int tt = (n_dec - 2); tt >= 0; tt--) {
     Rcpp::Rcout << tt + 1 << "...";
     states = path.slice(tt);
-    // Compute the fitted continuation value
+    // Construct regression basis
     if (basis_type == "power") {
-      reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+      reg_basis.cols(0, n_terms - 1) =
+          PBasis(states, basis, intercept, n_terms, reccur_limit);
     } else if (basis_type == "laguerre") {
-      reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
+      reg_basis.cols(0, n_terms - 1) =
+          LBasis(states, basis, intercept, n_terms, reccur_limit);
     }
+    if (spline) {
+      reg_basis.cols(n_terms, n_terms + n_knots - 1) =
+          LSplineBasis(states, knots, n_knots, reccur_limit2);
+    }
+    // Compute the fitted continuation value
     for (std::size_t pp = 0; pp < n_pos; pp++) {
       expected_value.slice(tt).col(pp) =
           SVDCoeff(reg_basis, path_values.slice(tt + 1).col(pp));
@@ -162,15 +178,9 @@ Rcpp::List LSM(const arma::cube& path,
       Optimal(path_values, path_policy, expected_value, reg_basis,
               reward_values, control2, tt, n_path, n_pos, n_action, n_dim);
     }
-    // Compute the fitted value function approximation
-    for (std::size_t pp = 0; pp < n_pos; pp++) {
-      fitted_value.slice(tt).col(pp) =
-          SVDCoeff(reg_basis, path_values.slice(tt).col(pp));
-    }
   }
   Rcpp::Rcout << "end\n";
   return Rcpp::List::create(Rcpp::Named("value") = path_values,
-                            Rcpp::Named("fitted") = fitted_value,
                             Rcpp::Named("policy") = path_policy,
                             Rcpp::Named("expected") = expected_value);
 }

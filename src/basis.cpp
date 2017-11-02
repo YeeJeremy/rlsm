@@ -22,7 +22,7 @@ arma::mat PBasis(const arma::mat& data,
         output.col(counter) = arma::pow(data.col(rr), cc + 1);
         counter++;
       }
-      if (cc > (reccur_limit(rr) - 1)) {  // no point continue if zeros trailing
+      if ((cc + 2) > reccur_limit(rr)) {  // no cont since zeros trailing
         break;
       }
     }
@@ -33,15 +33,15 @@ arma::mat PBasis(const arma::mat& data,
   return output;
 }
 
-// Finding the ending 1 of each row in the basis (for recurrence limit)
+// Position of ending 1 of each row in the basis (for recurrence limit)
 arma::uvec ReccurLimit(const arma::umat& basis) {
   std::size_t n_basis1 = basis.n_rows;
-  std::size_t n_basis2 = basis.n_cols;
+  int n_basis2 = basis.n_cols;
   arma::uvec output(n_basis1);
   arma::uword counter;
   for (std::size_t rr = 0; rr < n_basis1; rr++) {
     counter = 0;
-    for (std::size_t cc = n_basis2 - 1; cc > 0; cc--) {  // cc cant be 0!
+    for (int cc = n_basis2 - 1; cc >= 0; cc--) {
       if (basis(rr, cc) == 0) {
         counter++;
       } else {
@@ -93,13 +93,61 @@ arma::mat LBasis(const arma::mat& data,
         output.col(counter) = laguerre.col(cc);
         counter++;
       }
-      if (cc > (reccur_limit(rr) - 1)) {  // no point continue if zeros trailing
+      if ((cc + 2) > reccur_limit(rr)) {  // no cont since zeros trailing
         break;
       }
     }
   }
   if (intercept) {
     output.col(n_terms - 1).fill(1.);  // Intercept goes at the end
+  }
+  return output;
+}
+
+// Position of ending knot of each row in the basis
+//[[Rcpp::export]]
+arma::uvec ReccurLimit2(const arma::mat& knots) {
+  std::size_t n_knots1 = knots.n_rows;
+  std::size_t n_knots2 = knots.n_cols;
+  arma::uvec output(n_knots1);
+  arma::uword counter;
+  for (std::size_t rr = 0; rr < n_knots1; rr++) {
+    counter = 0;
+    for (std::size_t cc = 0; cc < n_knots2; cc++) {
+      if (Rcpp::NumericVector::is_na(knots(rr, cc))) {
+        break;
+      } else {
+        counter++;
+      }
+    }
+    output(rr) = counter;
+  }
+  return output;
+}
+
+// Linear spline regression basis
+//[[Rcpp::export]]
+arma::mat LSplineBasis(const arma::mat& data,
+                       const arma::mat& knots,
+                       const std::size_t& n_knots,
+                       const arma::uvec& reccur_limit2) {
+  std::size_t n_knots1 = knots.n_rows;
+  std::size_t n_knots2 = knots.n_cols;
+  std::size_t n_data = data.n_rows;
+  arma::mat output(n_data, n_knots);
+  std::size_t counter = 0;
+  arma::vec knotsVec(n_data);
+  arma::vec zeroVec = arma::zeros<arma::vec>(n_data);
+  // Fill in the basis
+  for (std::size_t rr = 0; rr < n_knots1; rr++) {
+    for (std::size_t cc = 0; cc < n_knots2; cc++) {
+      if ((cc + 1) > reccur_limit2(rr)) {
+        break;
+      } 
+      knotsVec.fill(knots(rr, cc));
+      output.col(counter) = arma::max(data.col(rr) - knotsVec, zeroVec);
+      counter++;
+    }
   }
   return output;
 }

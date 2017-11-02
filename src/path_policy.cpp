@@ -11,15 +11,31 @@ arma::ucube PathPolicy(const arma::cube& path,
                        const Rcpp::Function& Reward_,
                        Rcpp::NumericVector control_,
                        const arma::umat& basis,
-                       const std::string& basis_type) {
+                       const std::string& basis_type,
+                       const bool& spline,
+                       const arma::mat& knots) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;
   const std::size_t n_dim = path.n_cols;
-  const std::size_t n_terms = expected.n_rows;
+  const std::size_t n_basis = expected.n_rows;
+  std::size_t n_terms = arma::accu(basis);
+  arma::uvec reccur_limit2(knots.n_rows);
+  std::size_t n_knots = 0;
   bool intercept = true;
-  if (n_terms == arma::accu(basis)) {
-    intercept = false;
+  if (spline) {
+    reccur_limit2 = ReccurLimit2(knots);
+    n_knots = arma::sum(reccur_limit2);
+    if ((n_terms + n_knots) == n_basis) {
+      intercept = false;
+    }
+  } else {
+    if (n_terms == n_basis) {
+      intercept = false;
+    }
+  }
+  if (intercept) {
+    n_terms++;
   }
   const arma::ivec c_dims = control_.attr("dim");
   const std::size_t n_pos = c_dims(0);
@@ -38,7 +54,7 @@ arma::ucube PathPolicy(const arma::cube& path,
     control = arma::conv_to<arma::imat>::from(temp_control);
   }
   // Extract information about regression basis
-  arma::mat reg_basis(n_path, n_terms);
+  arma::mat reg_basis(n_path, n_terms + n_knots);
   arma::uvec reccur_limit(basis.n_rows);
   reccur_limit = ReccurLimit(basis);
   // Extract the prescribed policy
@@ -52,9 +68,15 @@ arma::ucube PathPolicy(const arma::cube& path,
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
       if (basis_type == "power") {
-        reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+        reg_basis.cols(0, n_terms - 1) =
+            PBasis(states, basis, intercept, n_terms, reccur_limit);
       } else if (basis_type == "laguerre") {
-        reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
+        reg_basis.cols(0, n_terms - 1) =
+            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      }
+      if (spline) {
+        reg_basis.cols(n_terms, n_terms + n_knots - 1) =
+            LSplineBasis(states, knots, n_knots, reccur_limit2);
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
@@ -73,9 +95,15 @@ arma::ucube PathPolicy(const arma::cube& path,
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
       if (basis_type == "power") {
-        reg_basis = PBasis(states, basis, intercept, n_terms, reccur_limit);
+        reg_basis.cols(0, n_terms - 1) =
+            PBasis(states, basis, intercept, n_terms, reccur_limit);
       } else if (basis_type == "laguerre") {
-        reg_basis = LBasis(states, basis, intercept, n_terms, reccur_limit);
+        reg_basis.cols(0, n_terms - 1) =
+            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      }
+      if (spline) {
+        reg_basis.cols(n_terms, n_terms + n_knots - 1) =
+            LSplineBasis(states, knots, n_knots, reccur_limit2);
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));

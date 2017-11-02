@@ -25,4 +25,14 @@ arma::mat LBasis(const arma::mat& data,
                  const std::size_t& n_terms,
                  const arma::uvec& recurr_limit);
 
+// Position of ending knot of each row in the basis
+arma::uvec ReccurLimit2(const arma::mat& knots);
+
+// Linear spline regression basis
+arma::mat LSplineBasis(const arma::mat& data,
+                       const arma::mat& knots,
+                       const std::size_t& n_knots,
+                       const arma::uvec& reccur_limit2);
+
+
 #endif  // INST_INCLUDE_BASIS_H_
