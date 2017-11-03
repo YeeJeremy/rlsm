@@ -11,7 +11,7 @@ github account to report any issues.
 
 ## Example: Bermuda put option
 
-### Continuation dalue function approximation
+### Continuation value function approximation
 
 Let us consider the valuation of a Bermuda put option with strike
 price **40** and expiry date of **1** year. The underlying asset price
