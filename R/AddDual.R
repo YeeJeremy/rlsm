@@ -2,9 +2,9 @@
 ## Additive duals
 ################################################################################
 
-AddDual <- function(path, subsim_, expected_fitted, Reward_, Scrap_, control_, basis,
+AddDual <- function(path, subsim_, expected, Reward_, Scrap_, control_, basis,
                     basis_type, spline = FALSE, knots = matrix(NA, nrow = 1)) {
     .Call('_rlsm_AddDual', PACKAGE = 'rlsm', path, subsim_,
-          expected_fitted, Reward_, Scrap_, control_, basis,
+          expected, Reward_, Scrap_, control_, basis,
           basis_type, spline, knots)
 }
