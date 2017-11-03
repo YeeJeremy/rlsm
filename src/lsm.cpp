@@ -5,7 +5,6 @@
 #include "inst/include/basis.h"
 
 // Regression coefficients from singular value decomposition
-//[[Rcpp::export]]
 arma::vec SVDCoeff(const arma::mat& xreg,
                    const arma::vec& yreg) {
   arma::mat u;

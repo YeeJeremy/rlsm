@@ -5,7 +5,6 @@
 #include "inst/include/basis.h"
 
 // Power polynomial regression basis
-//[[Rcpp::export]]
 arma::mat PBasis(const arma::mat& data,
                  const arma::umat& basis,
                  const bool& intercept,
@@ -73,7 +72,6 @@ arma::mat Laguerre(const arma::vec data,
 }
 
 // Laguerre polynomial regression basis
-//[[Rcpp::export]]
 arma::mat LBasis(const arma::mat& data,
                  const arma::umat& basis,
                  const bool& intercept,
@@ -105,7 +103,6 @@ arma::mat LBasis(const arma::mat& data,
 }
 
 // Position of ending knot of each row in the basis
-//[[Rcpp::export]]
 arma::uvec ReccurLimit2(const arma::mat& knots) {
   std::size_t n_knots1 = knots.n_rows;
   std::size_t n_knots2 = knots.n_cols;
@@ -126,7 +123,6 @@ arma::uvec ReccurLimit2(const arma::mat& knots) {
 }
 
 // Linear spline regression basis
-//[[Rcpp::export]]
 arma::mat LSplineBasis(const arma::mat& data,
                        const arma::mat& knots,
                        const std::size_t& n_knots,
