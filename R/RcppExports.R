@@ -5,6 +5,10 @@ Bounds <- function(path, Reward_, Scrap_, control_, mart, path_action) {
     .Call('_rlsm_Bounds', PACKAGE = 'rlsm', path, Reward_, Scrap_, control_, mart, path_action)
 }
 
+BermudaPutLSM <- function(path, strike, discount, basis, intercept, basis_type) {
+    .Call('_rlsm_BermudaPutLSM', PACKAGE = 'rlsm', path, strike, discount, basis, intercept, basis_type)
+}
+
 TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
     .Call('_rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
@@ -12,4 +16,3 @@ TestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_act
 FullTestPolicy <- function(start_position, path, control_, Reward_, Scrap_, path_action) {
     .Call('_rlsm_FullTestPolicy', PACKAGE = 'rlsm', start_position, path, control_, Reward_, Scrap_, path_action)
 }
-

@@ -26,61 +26,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// PBasis
-arma::mat PBasis(const arma::mat& data, const arma::umat& basis, const bool& intercept, const std::size_t& n_terms, const arma::uvec& reccur_limit);
-RcppExport SEXP _rlsm_PBasis(SEXP dataSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP n_termsSEXP, SEXP reccur_limitSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
-    Rcpp::traits::input_parameter< const std::size_t& >::type n_terms(n_termsSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type reccur_limit(reccur_limitSEXP);
-    rcpp_result_gen = Rcpp::wrap(PBasis(data, basis, intercept, n_terms, reccur_limit));
-    return rcpp_result_gen;
-END_RCPP
-}
-// LBasis
-arma::mat LBasis(const arma::mat& data, const arma::umat& basis, const bool& intercept, const std::size_t& n_terms, const arma::uvec& reccur_limit);
-RcppExport SEXP _rlsm_LBasis(SEXP dataSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP n_termsSEXP, SEXP reccur_limitSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
-    Rcpp::traits::input_parameter< const std::size_t& >::type n_terms(n_termsSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type reccur_limit(reccur_limitSEXP);
-    rcpp_result_gen = Rcpp::wrap(LBasis(data, basis, intercept, n_terms, reccur_limit));
-    return rcpp_result_gen;
-END_RCPP
-}
-// ReccurLimit2
-arma::uvec ReccurLimit2(const arma::mat& knots);
-RcppExport SEXP _rlsm_ReccurLimit2(SEXP knotsSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
-    rcpp_result_gen = Rcpp::wrap(ReccurLimit2(knots));
-    return rcpp_result_gen;
-END_RCPP
-}
-// LSplineBasis
-arma::mat LSplineBasis(const arma::mat& data, const arma::mat& knots, const std::size_t& n_knots, const arma::uvec& reccur_limit2);
-RcppExport SEXP _rlsm_LSplineBasis(SEXP dataSEXP, SEXP knotsSEXP, SEXP n_knotsSEXP, SEXP reccur_limit2SEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type data(dataSEXP);
-    Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
-    Rcpp::traits::input_parameter< const std::size_t& >::type n_knots(n_knotsSEXP);
-    Rcpp::traits::input_parameter< const arma::uvec& >::type reccur_limit2(reccur_limit2SEXP);
-    rcpp_result_gen = Rcpp::wrap(LSplineBasis(data, knots, n_knots, reccur_limit2));
-    return rcpp_result_gen;
-END_RCPP
-}
 // Bounds
 Rcpp::List Bounds(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::cube& mart, const arma::ucube& path_action);
 RcppExport SEXP _rlsm_Bounds(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP martSEXP, SEXP path_actionSEXP) {
@@ -94,18 +39,6 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const arma::cube& >::type mart(martSEXP);
     Rcpp::traits::input_parameter< const arma::ucube& >::type path_action(path_actionSEXP);
     rcpp_result_gen = Rcpp::wrap(Bounds(path, Reward_, Scrap_, control_, mart, path_action));
-    return rcpp_result_gen;
-END_RCPP
-}
-// SVDCoeff
-arma::vec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
-RcppExport SEXP _rlsm_SVDCoeff(SEXP xregSEXP, SEXP yregSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type xreg(xregSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type yreg(yregSEXP);
-    rcpp_result_gen = Rcpp::wrap(SVDCoeff(xreg, yreg));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -125,6 +58,22 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const bool& >::type spline(splineSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
     rcpp_result_gen = Rcpp::wrap(LSM(path, Reward_, Scrap_, control_, basis, intercept, basis_type, spline, knots));
+    return rcpp_result_gen;
+END_RCPP
+}
+// BermudaPutLSM
+Rcpp::List BermudaPutLSM(const arma::cube& path, const double& strike, const double& discount, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
+RcppExport SEXP _rlsm_BermudaPutLSM(SEXP pathSEXP, SEXP strikeSEXP, SEXP discountSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
+    Rcpp::traits::input_parameter< const double& >::type strike(strikeSEXP);
+    Rcpp::traits::input_parameter< const double& >::type discount(discountSEXP);
+    Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
+    Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
+    Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
+    rcpp_result_gen = Rcpp::wrap(BermudaPutLSM(path, strike, discount, basis, intercept, basis_type));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -181,13 +130,9 @@ END_RCPP
 
 static const R_CallMethodDef CallEntries[] = {
     {"_rlsm_AddDual", (DL_FUNC) &_rlsm_AddDual, 10},
-    {"_rlsm_PBasis", (DL_FUNC) &_rlsm_PBasis, 5},
-    {"_rlsm_LBasis", (DL_FUNC) &_rlsm_LBasis, 5},
-    {"_rlsm_ReccurLimit2", (DL_FUNC) &_rlsm_ReccurLimit2, 1},
-    {"_rlsm_LSplineBasis", (DL_FUNC) &_rlsm_LSplineBasis, 4},
     {"_rlsm_Bounds", (DL_FUNC) &_rlsm_Bounds, 6},
-    {"_rlsm_SVDCoeff", (DL_FUNC) &_rlsm_SVDCoeff, 2},
     {"_rlsm_LSM", (DL_FUNC) &_rlsm_LSM, 9},
+    {"_rlsm_BermudaPutLSM", (DL_FUNC) &_rlsm_BermudaPutLSM, 6},
     {"_rlsm_PathPolicy", (DL_FUNC) &_rlsm_PathPolicy, 8},
     {"_rlsm_TestPolicy", (DL_FUNC) &_rlsm_TestPolicy, 6},
     {"_rlsm_FullTestPolicy", (DL_FUNC) &_rlsm_FullTestPolicy, 6},
