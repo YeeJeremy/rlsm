@@ -15,7 +15,9 @@ arma::cube AddDual(const arma::cube& path,
                    const arma::umat& basis,
                    const std::string& basis_type,
                    const bool& spline,
-                   const arma::mat& knots) {
+                   const arma::mat& knots,
+                   const Rcpp::Function& Basis_,
+                   const std::size_t n_rbasis) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;
@@ -28,11 +30,11 @@ arma::cube AddDual(const arma::cube& path,
   if (spline) {
     reccur_limit2 = ReccurLimit2(knots);
     n_knots = arma::sum(reccur_limit2);
-    if ((n_terms + n_knots) == n_basis) {
+    if ((n_terms + n_knots + n_rbasis) == n_basis) {
       intercept = false;
     }
   } else {
-    if (n_terms == n_basis) {
+    if ((n_terms + n_rbasis) == n_basis) {
       intercept = false;
     }
   }
@@ -62,8 +64,8 @@ arma::cube AddDual(const arma::cube& path,
   }
   // Additive duals
   arma::cube add_dual(n_path, n_pos, n_dec - 1, arma::fill::zeros);
-  arma::mat path_basis(n_path, n_terms + n_knots);
-  arma::mat subsim_basis(n_subsim, n_terms + n_knots);
+  arma::mat path_basis(n_path, n_terms + n_knots + n_rbasis);
+  arma::mat subsim_basis(n_subsim, n_terms + n_knots + n_rbasis);
   arma::cube reward_value(n_path, n_action, n_pos);
   arma::cube subsim_reward(n_subsim, n_action, n_pos);
   arma::mat expected(n_path, n_pos);
@@ -91,6 +93,10 @@ arma::cube AddDual(const arma::cube& path,
       if (spline) {
         subsim_basis.cols(n_terms, n_terms + n_knots - 1) =
             LSplineBasis(states, knots, n_knots, reccur_limit2);
+      }
+      if (n_rbasis > 0) {
+        subsim_basis.cols(n_terms + n_knots, n_terms + n_knots + n_rbasis - 1) =
+            Rcpp::as<arma::mat>(Basis_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
       }
       // Fitted expected value function for subsims
       subsim_expected = subsim_basis * expected_fitted.slice(tt + 1);
@@ -131,6 +137,10 @@ arma::cube AddDual(const arma::cube& path,
     if (spline) {
       path_basis.cols(n_terms, n_terms + n_knots - 1) =
           LSplineBasis(path.slice(tt + 1), knots, n_knots, reccur_limit2);
+    }
+    if (n_rbasis > 0) {
+      path_basis.cols(n_terms + n_knots, n_terms + n_knots + n_rbasis - 1) =
+          Rcpp::as<arma::mat>(Basis_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(path.slice(tt + 1)))));
     }
     // Fitted expected value function for subsims
     expected = path_basis * expected_fitted.slice(tt + 1);

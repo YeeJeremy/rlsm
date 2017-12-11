@@ -7,8 +7,8 @@
 using namespace Rcpp;
 
 // AddDual
-arma::cube AddDual(const arma::cube& path, Rcpp::NumericVector subsim_, const arma::cube& expected_fitted, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const std::string& basis_type, const bool& spline, const arma::mat& knots);
-RcppExport SEXP _rlsm_AddDual(SEXP pathSEXP, SEXP subsim_SEXP, SEXP expected_fittedSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP) {
+arma::cube AddDual(const arma::cube& path, Rcpp::NumericVector subsim_, const arma::cube& expected_fitted, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const std::string& basis_type, const bool& spline, const arma::mat& knots, const Rcpp::Function& Basis_, const std::size_t n_rbasis);
+RcppExport SEXP _rlsm_AddDual(SEXP pathSEXP, SEXP subsim_SEXP, SEXP expected_fittedSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP, SEXP Basis_SEXP, SEXP n_rbasisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -22,7 +22,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
     Rcpp::traits::input_parameter< const bool& >::type spline(splineSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
-    rcpp_result_gen = Rcpp::wrap(AddDual(path, subsim_, expected_fitted, Reward_, Scrap_, control_, basis, basis_type, spline, knots));
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Basis_(Basis_SEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type n_rbasis(n_rbasisSEXP);
+    rcpp_result_gen = Rcpp::wrap(AddDual(path, subsim_, expected_fitted, Reward_, Scrap_, control_, basis, basis_type, spline, knots, Basis_, n_rbasis));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -42,9 +44,21 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// SVDCoeff
+arma::vec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
+RcppExport SEXP _rlsm_SVDCoeff(SEXP xregSEXP, SEXP yregSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< const arma::mat& >::type xreg(xregSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type yreg(yregSEXP);
+    rcpp_result_gen = Rcpp::wrap(SVDCoeff(xreg, yreg));
+    return rcpp_result_gen;
+END_RCPP
+}
 // LSM
-Rcpp::List LSM(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type, const bool& spline, const arma::mat& knots);
-RcppExport SEXP _rlsm_LSM(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP) {
+Rcpp::List LSM(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type, const bool& spline, const arma::mat& knots, const Rcpp::Function& Basis_, const std::size_t n_rbasis, const Rcpp::Function& Reg_, const bool& useSVD);
+RcppExport SEXP _rlsm_LSM(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP, SEXP Basis_SEXP, SEXP n_rbasisSEXP, SEXP Reg_SEXP, SEXP useSVDSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -57,29 +71,17 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
     Rcpp::traits::input_parameter< const bool& >::type spline(splineSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
-    rcpp_result_gen = Rcpp::wrap(LSM(path, Reward_, Scrap_, control_, basis, intercept, basis_type, spline, knots));
-    return rcpp_result_gen;
-END_RCPP
-}
-// BermudaPutLSM
-Rcpp::List BermudaPutLSM(const arma::cube& path, const double& strike, const double& discount, const arma::umat& basis, const bool& intercept, const std::string& basis_type);
-RcppExport SEXP _rlsm_BermudaPutLSM(SEXP pathSEXP, SEXP strikeSEXP, SEXP discountSEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::cube& >::type path(pathSEXP);
-    Rcpp::traits::input_parameter< const double& >::type strike(strikeSEXP);
-    Rcpp::traits::input_parameter< const double& >::type discount(discountSEXP);
-    Rcpp::traits::input_parameter< const arma::umat& >::type basis(basisSEXP);
-    Rcpp::traits::input_parameter< const bool& >::type intercept(interceptSEXP);
-    Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
-    rcpp_result_gen = Rcpp::wrap(BermudaPutLSM(path, strike, discount, basis, intercept, basis_type));
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Basis_(Basis_SEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type n_rbasis(n_rbasisSEXP);
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Reg_(Reg_SEXP);
+    Rcpp::traits::input_parameter< const bool& >::type useSVD(useSVDSEXP);
+    rcpp_result_gen = Rcpp::wrap(LSM(path, Reward_, Scrap_, control_, basis, intercept, basis_type, spline, knots, Basis_, n_rbasis, Reg_, useSVD));
     return rcpp_result_gen;
 END_RCPP
 }
 // PathPolicy
-arma::ucube PathPolicy(const arma::cube& path, const arma::cube& expected, const Rcpp::Function& Reward_, Rcpp::NumericVector control_, const arma::umat& basis, const std::string& basis_type, const bool& spline, const arma::mat& knots);
-RcppExport SEXP _rlsm_PathPolicy(SEXP pathSEXP, SEXP expectedSEXP, SEXP Reward_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP) {
+arma::ucube PathPolicy(const arma::cube& path, const arma::cube& expected, const Rcpp::Function& Reward_, Rcpp::NumericVector control_, const arma::umat& basis, const std::string& basis_type, const bool& spline, const arma::mat& knots, const Rcpp::Function& Basis_, const std::size_t n_rbasis);
+RcppExport SEXP _rlsm_PathPolicy(SEXP pathSEXP, SEXP expectedSEXP, SEXP Reward_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP, SEXP Basis_SEXP, SEXP n_rbasisSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
@@ -91,7 +93,9 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< const std::string& >::type basis_type(basis_typeSEXP);
     Rcpp::traits::input_parameter< const bool& >::type spline(splineSEXP);
     Rcpp::traits::input_parameter< const arma::mat& >::type knots(knotsSEXP);
-    rcpp_result_gen = Rcpp::wrap(PathPolicy(path, expected, Reward_, control_, basis, basis_type, spline, knots));
+    Rcpp::traits::input_parameter< const Rcpp::Function& >::type Basis_(Basis_SEXP);
+    Rcpp::traits::input_parameter< const std::size_t >::type n_rbasis(n_rbasisSEXP);
+    rcpp_result_gen = Rcpp::wrap(PathPolicy(path, expected, Reward_, control_, basis, basis_type, spline, knots, Basis_, n_rbasis));
     return rcpp_result_gen;
 END_RCPP
 }
@@ -129,11 +133,11 @@ END_RCPP
 }
 
 static const R_CallMethodDef CallEntries[] = {
-    {"_rlsm_AddDual", (DL_FUNC) &_rlsm_AddDual, 10},
+    {"_rlsm_AddDual", (DL_FUNC) &_rlsm_AddDual, 12},
     {"_rlsm_Bounds", (DL_FUNC) &_rlsm_Bounds, 6},
-    {"_rlsm_LSM", (DL_FUNC) &_rlsm_LSM, 9},
-    {"_rlsm_BermudaPutLSM", (DL_FUNC) &_rlsm_BermudaPutLSM, 6},
-    {"_rlsm_PathPolicy", (DL_FUNC) &_rlsm_PathPolicy, 8},
+    {"_rlsm_SVDCoeff", (DL_FUNC) &_rlsm_SVDCoeff, 2},
+    {"_rlsm_LSM", (DL_FUNC) &_rlsm_LSM, 13},
+    {"_rlsm_PathPolicy", (DL_FUNC) &_rlsm_PathPolicy, 10},
     {"_rlsm_TestPolicy", (DL_FUNC) &_rlsm_TestPolicy, 6},
     {"_rlsm_FullTestPolicy", (DL_FUNC) &_rlsm_FullTestPolicy, 6},
     {NULL, NULL, 0}

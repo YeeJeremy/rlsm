@@ -4,10 +4,9 @@
 
 #include <algorithm>
 #include <RcppArmadillo.h>
-#ifdef _OPENMP
-#include <omp.h>
-#endif
-#include <Rcpp.h>
+// # ifdef _OPENMP
+// # include <omp.h>
+// # endif
 
 // Lower and upper bounds for the true value
 //[[Rcpp::export]]
@@ -54,7 +53,7 @@ Rcpp::List Bounds(const arma::cube& path,
       states = path.slice(tt);
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
-#pragma omp parallel for private(pp, ii, policy, next, aa)
+      // #pragma omp parallel for private(pp, ii, policy, next, aa)
       for (pp = 0; pp < n_pos; pp++) {
         for (ii = 0; ii < n_path; ii++) {
           // Primal values
@@ -81,7 +80,7 @@ Rcpp::List Bounds(const arma::cube& path,
       states = path.slice(tt);
       reward = Rcpp::as<arma::cube>(Reward_(
           Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
-#pragma omp parallel for private(pp, ii, policy, prob_weight, mod, aa)
+      // #pragma omp parallel for private(pp, ii, policy, prob_weight, mod, aa)
       for (pp = 0; pp < n_pos; pp++) {
         for (ii = 0; ii < n_path; ii++) {
           //  Primal values

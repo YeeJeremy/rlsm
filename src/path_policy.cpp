@@ -13,7 +13,9 @@ arma::ucube PathPolicy(const arma::cube& path,
                        const arma::umat& basis,
                        const std::string& basis_type,
                        const bool& spline,
-                       const arma::mat& knots) {
+                       const arma::mat& knots,
+                       const Rcpp::Function& Basis_,
+                       const std::size_t n_rbasis) {
   // Extract parameters
   const std::size_t n_dec = path.n_slices;
   const std::size_t n_path = path.n_rows;
@@ -26,11 +28,11 @@ arma::ucube PathPolicy(const arma::cube& path,
   if (spline) {
     reccur_limit2 = ReccurLimit2(knots);
     n_knots = arma::sum(reccur_limit2);
-    if ((n_terms + n_knots) == n_basis) {
+    if ((n_terms + n_knots + n_rbasis) == n_basis) {
       intercept = false;
     }
   } else {
-    if (n_terms == n_basis) {
+    if ((n_terms + n_rbasis) == n_basis) {
       intercept = false;
     }
   }
@@ -54,7 +56,7 @@ arma::ucube PathPolicy(const arma::cube& path,
     control = arma::conv_to<arma::imat>::from(temp_control);
   }
   // Extract information about regression basis
-  arma::mat reg_basis(n_path, n_terms + n_knots);
+  arma::mat reg_basis(n_path, n_terms + n_knots + n_rbasis);
   arma::uvec reccur_limit(basis.n_rows);
   reccur_limit = ReccurLimit(basis);
   // Extract the prescribed policy
@@ -77,6 +79,10 @@ arma::ucube PathPolicy(const arma::cube& path,
       if (spline) {
         reg_basis.cols(n_terms, n_terms + n_knots - 1) =
             LSplineBasis(states, knots, n_knots, reccur_limit2);
+      }
+      if (n_rbasis > 0) {
+        reg_basis.cols(n_terms + n_knots, n_terms + n_knots + n_rbasis - 1) =
+            Rcpp::as<arma::mat>(Basis_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
@@ -104,6 +110,10 @@ arma::ucube PathPolicy(const arma::cube& path,
       if (spline) {
         reg_basis.cols(n_terms, n_terms + n_knots - 1) =
             LSplineBasis(states, knots, n_knots, reccur_limit2);
+      }
+      if (n_rbasis > 0) {
+        reg_basis.cols(n_terms + n_knots, n_terms + n_knots + n_rbasis - 1) =
+            Rcpp::as<arma::mat>(Basis_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states))));
       }
       reward_values = Rcpp::as<arma::cube>(
           Reward_(Rcpp::as<Rcpp::NumericMatrix>(Rcpp::wrap(states)), tt + 1));
