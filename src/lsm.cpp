@@ -154,12 +154,14 @@ Rcpp::List LSM(const arma::cube& path,
     Rcpp::Rcout << tt + 1 << "...";
     states = path.slice(tt);
     // Construct regression basis
-    if (basis_type == "power") {
-      reg_basis.cols(0, n_terms - 1) =
-          PBasis(states, basis, intercept, n_terms, reccur_limit);
-    } else if (basis_type == "laguerre") {
-      reg_basis.cols(0, n_terms - 1) =
-          LBasis(states, basis, intercept, n_terms, reccur_limit);
+    if (n_terms > 0) {
+      if (basis_type == "power") {
+        reg_basis.cols(0, n_terms - 1) =
+            PBasis(states, basis, intercept, n_terms, reccur_limit);
+      } else if (basis_type == "laguerre") {
+        reg_basis.cols(0, n_terms - 1) =
+            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      }
     }
     if (spline) {
       reg_basis.cols(n_terms, n_terms + n_knots - 1) =

@@ -69,12 +69,14 @@ arma::ucube PathPolicy(const arma::cube& path,
   if (full_control) {
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
-      if (basis_type == "power") {
-        reg_basis.cols(0, n_terms - 1) =
-            PBasis(states, basis, intercept, n_terms, reccur_limit);
-      } else if (basis_type == "laguerre") {
-        reg_basis.cols(0, n_terms - 1) =
-            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      if (n_terms > 0) {
+        if (basis_type == "power") {
+          reg_basis.cols(0, n_terms - 1) =
+              PBasis(states, basis, intercept, n_terms, reccur_limit);
+        } else if (basis_type == "laguerre") {
+          reg_basis.cols(0, n_terms - 1) =
+              LBasis(states, basis, intercept, n_terms, reccur_limit);
+        }
       }
       if (spline) {
         reg_basis.cols(n_terms, n_terms + n_knots - 1) =
@@ -100,12 +102,14 @@ arma::ucube PathPolicy(const arma::cube& path,
     arma::vec trans_prob(n_pos);  // The transition probabilities
     for (tt = 0; tt < n_dec - 1; tt++) {
       states = path.slice(tt);
-      if (basis_type == "power") {
-        reg_basis.cols(0, n_terms - 1) =
-            PBasis(states, basis, intercept, n_terms, reccur_limit);
-      } else if (basis_type == "laguerre") {
-        reg_basis.cols(0, n_terms - 1) =
-            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      if (n_terms > 0) {
+        if (basis_type == "power") {
+          reg_basis.cols(0, n_terms - 1) =
+              PBasis(states, basis, intercept, n_terms, reccur_limit);
+        } else if (basis_type == "laguerre") {
+          reg_basis.cols(0, n_terms - 1) =
+              LBasis(states, basis, intercept, n_terms, reccur_limit);
+        }
       }
       if (spline) {
         reg_basis.cols(n_terms, n_terms + n_knots - 1) =

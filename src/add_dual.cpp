@@ -83,12 +83,14 @@ arma::cube AddDual(const arma::cube& path,
     // Find the average of the subsimulation paths
     for (pp = 0; pp < n_path; pp++) {
       states = subsim.slice(n_path * tt + pp);
-      if (basis_type == "power") {
-        subsim_basis.cols(0, n_terms - 1) =
-            PBasis(states, basis, intercept, n_terms, reccur_limit);
-      } else if (basis_type == "laguerre") {
-        subsim_basis.cols(0, n_terms - 1) =
-            LBasis(states, basis, intercept, n_terms, reccur_limit);
+      if (n_terms > 0) {
+        if (basis_type == "power") {
+          subsim_basis.cols(0, n_terms - 1) =
+              PBasis(states, basis, intercept, n_terms, reccur_limit);
+        } else if (basis_type == "laguerre") {
+          subsim_basis.cols(0, n_terms - 1) =
+              LBasis(states, basis, intercept, n_terms, reccur_limit);
+        }
       }
       if (spline) {
         subsim_basis.cols(n_terms, n_terms + n_knots - 1) =
@@ -127,12 +129,14 @@ arma::cube AddDual(const arma::cube& path,
     }
     add_dual.slice(tt) = (1.0 / n_subsim) * add_dual.slice(tt);
     // Find the realised values. Reg basis for paths.
-    if (basis_type == "power") {
-      path_basis.cols(0, n_terms - 1) =
-          PBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
-    } else if (basis_type == "laguerre") {
-      path_basis.cols(0, n_terms - 1) =
-          LBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
+    if (n_terms > 0) {
+      if (basis_type == "power") {
+        path_basis.cols(0, n_terms - 1) =
+            PBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
+      } else if (basis_type == "laguerre") {
+        path_basis.cols(0, n_terms - 1) =
+            LBasis(path.slice(tt + 1), basis, intercept, n_terms, reccur_limit);
+      }
     }
     if (spline) {
       path_basis.cols(n_terms, n_terms + n_knots - 1) =
