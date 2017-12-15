@@ -3,11 +3,8 @@
 ## Description
 
 This package implements least squares Monte Carlo and duality methods.
-
-Regression basis: power polynomials, laguerre polynomials and linear splines.
-
  Please contact me by email (jeremyyee@outlook.com.au) or through my
-github account to report any issues.
+ GitHub account to report any issues.
 
 ## Example: Bermuda put option
 
