@@ -5,10 +5,6 @@ Bounds <- function(path, Reward, Scrap, control, mart, path_action) {
     .Call('_rlsm_Bounds', PACKAGE = 'rlsm', path, Reward, Scrap, control, mart, path_action)
 }
 
-SVDCoeff <- function(xreg, yreg) {
-    .Call('_rlsm_SVDCoeff', PACKAGE = 'rlsm', xreg, yreg)
-}
-
 TestPolicy <- function(start_position, path, control, Reward, Scrap, path_action) {
     .Call('_rlsm_TestPolicy', PACKAGE = 'rlsm', start_position, path, control, Reward, Scrap, path_action)
 }

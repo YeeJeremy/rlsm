@@ -3,38 +3,39 @@
 \title{FullTestPolicy}
 \description{Full testing of prescribed policy for sample paths.}
 \usage{
-FullTestPolicy(start_position, path, control, Reward, Scrap, path_action)
+FullTestPolicy(start_position, path, control, Reward, Scrap,
+path_action)
 }
 \arguments{
   \item{start_position}{Starting position.}
-  \item{path}{3-D array representing sample paths.
-    Entry [i,,t] represents the state at time t for sample path i.}
+  \item{path}{3-D array representing sample paths.  Entry [i,,j]
+    represents the state at time j for sample path i.}
   \item{control}{Array representing the transition probabilities of the
     controlled Markov chain. Two possible inputs:
     \itemize{
-      \item{Matrix of dimension n_pos \eqn{\times} n_action, where entry
+      \item{Matrix of dimension \eqn{p \times a} where entry
         [i,j] describes the next position after selecting action j at
         position i.}
-      \item{3-D array with dimensions n_pos \eqn{\times} n_action
-	\eqn{\times} n_pos, where entry [i,j,k] is the probability of
-	moving to position k after applying action j to position i.}
+      \item{3-D array with dimensions \eqn{p \times a \times p} where
+	entry [i,j,k] is the probability of moving to position k after
+	applying action j to position i.}
     }
-  } 
+  }
   \item{Reward}{User supplied function to represent the reward function.
     The function should take in the following arguments, in this order:
     \itemize{
       \item{\eqn{n \times d} matrix representing the \eqn{n}
 	\eqn{d}-dimensional states. }
-      \item{A natural number representing the decison epoch.}
+      \item{A natural number representing the decison time.}
     }
     The function should output the following:
     \itemize{
       \item{3-D array with dimensions \eqn{n \times (a \times p)}
-	representing the rewards, where \eqn{p} is the number of
-	positions and \eqn{a} is the number of actions in the
-	problem. The \eqn{[i, a, p]}-th entry corresponds to the reward
-	from applying the \eqn{a}-th action to the \eqn{p}-th position
-	for the \eqn{i}-th state.} 
+	representing the rewards where \eqn{n} is the number of sample
+	paths, \eqn{a} is the number of action, and \eqn{p} is the
+	number of positions. The \eqn{[i, j, k]}-th entry corresponds to
+	the reward from applying the \eqn{j}-th action to the \eqn{k}-th
+	position for the \eqn{i}-th state.}
     }
   }
   \item{Scrap}{User supplied function to represent the scrap function.
@@ -43,9 +44,16 @@ FullTestPolicy(start_position, path, control, Reward, Scrap, path_action)
       \item{\eqn{n \times d} matrix representing the \eqn{n}
 	\eqn{d}-dimensional states. }
     }
+    The function should output the following:
+    \itemize{
+      \item{Matrix with dimensions \eqn{n \times p} representing the
+	scrap where \eqn{n} is the number of sample paths and \eqn{p} is
+	the number of positions. The \eqn{[i, j]}-th entry corresponds
+	to the scrap at position \eqn{j} for the \eqn{i}-th path.}
+    }   
   }
   \item{path_action}{3-D array containing the prescribed policy. Entry
-    [i,p,t] is for path i and position p at time t.}
+    [i,j,k] is for path i and position j at time k.}
 }
 \value{
   \item{value}{Array containing the path values.}
@@ -56,6 +64,7 @@ FullTestPolicy(start_position, path, control, Reward, Scrap, path_action)
     refers to the action at time t for sample path i.}
 }
 \examples{
+library(StochasticProcess)
 ## Bermuda put option
 step <- 0.02
 mu <- 0.06 * step

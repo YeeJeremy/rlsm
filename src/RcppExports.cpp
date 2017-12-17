@@ -44,18 +44,6 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
-// SVDCoeff
-arma::vec SVDCoeff(const arma::mat& xreg, const arma::vec& yreg);
-RcppExport SEXP _rlsm_SVDCoeff(SEXP xregSEXP, SEXP yregSEXP) {
-BEGIN_RCPP
-    Rcpp::RObject rcpp_result_gen;
-    Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< const arma::mat& >::type xreg(xregSEXP);
-    Rcpp::traits::input_parameter< const arma::vec& >::type yreg(yregSEXP);
-    rcpp_result_gen = Rcpp::wrap(SVDCoeff(xreg, yreg));
-    return rcpp_result_gen;
-END_RCPP
-}
 // LSM
 Rcpp::List LSM(const arma::cube& path, const Rcpp::Function& Reward_, const Rcpp::Function& Scrap_, Rcpp::NumericVector control_, const arma::umat& basis, const bool& intercept, const std::string& basis_type, const bool& spline, const arma::mat& knots, const Rcpp::Function& Basis_, const std::size_t n_rbasis, const Rcpp::Function& Reg_, const bool& useSVD);
 RcppExport SEXP _rlsm_LSM(SEXP pathSEXP, SEXP Reward_SEXP, SEXP Scrap_SEXP, SEXP control_SEXP, SEXP basisSEXP, SEXP interceptSEXP, SEXP basis_typeSEXP, SEXP splineSEXP, SEXP knotsSEXP, SEXP Basis_SEXP, SEXP n_rbasisSEXP, SEXP Reg_SEXP, SEXP useSVDSEXP) {
@@ -135,7 +123,6 @@ END_RCPP
 static const R_CallMethodDef CallEntries[] = {
     {"_rlsm_AddDual", (DL_FUNC) &_rlsm_AddDual, 12},
     {"_rlsm_Bounds", (DL_FUNC) &_rlsm_Bounds, 6},
-    {"_rlsm_SVDCoeff", (DL_FUNC) &_rlsm_SVDCoeff, 2},
     {"_rlsm_LSM", (DL_FUNC) &_rlsm_LSM, 13},
     {"_rlsm_PathPolicy", (DL_FUNC) &_rlsm_PathPolicy, 10},
     {"_rlsm_TestPolicy", (DL_FUNC) &_rlsm_TestPolicy, 6},

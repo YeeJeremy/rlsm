@@ -15,6 +15,7 @@ GetBounds(duality, alpha, position)
   of the specified position.
 }
 \examples{
+library(StochasticProcess)
 ## Bermuda put option
 step <- 0.02
 mu <- 0.06 * step

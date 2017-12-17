@@ -6,7 +6,6 @@
 
 // Regression coefficients from singular value decomposition
 // Accounting for rank defficiency
-//[[Rcpp::export]]
 arma::vec SVDCoeff(const arma::mat& xreg,
                    const arma::vec& yreg) {
   arma::mat u;
