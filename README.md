@@ -6,6 +6,12 @@ This package implements least squares Monte Carlo and duality methods.
  Please contact me by email (jeremyyee@outlook.com.au) or through my
  GitHub account to report any issues.
 
+## Documentation
+
+A vignette can be found [here](https://github.com/YeeJeremy/vignettes/blob/master/rlsm.pdf)
+and the package manual can be found [here](https://github.com/YeeJeremy/RPackageManuals/blob/master/rlsm-manual.pdf).
+
+
 ## Example: Bermuda put option
 
 ### Continuation value function approximation
